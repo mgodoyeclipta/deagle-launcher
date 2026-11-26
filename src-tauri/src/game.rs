@@ -227,6 +227,41 @@ pub fn is_valid_map(map: &str) -> bool {
         && map.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '-'))
 }
 
+// ---------------------------------------------------------------------------
+// UI sound effects
+// ---------------------------------------------------------------------------
+
+/// Sound effects the launcher can play. They are read from the user's own game
+/// install at runtime and never shipped with the launcher (they belong to
+/// Valve). Only these fixed paths can be read: no arbitrary file access.
+pub fn sound_file(name: &str) -> Option<&'static str> {
+    Some(match name {
+        "click" => "valve/sound/common/launch_select2.wav",
+        "open" => "valve/sound/common/launch_upmenu1.wav",
+        "close" => "valve/sound/common/launch_dnmenu1.wav",
+        "select" => "valve/sound/common/wpn_moveselect.wav",
+        "deny" => "valve/sound/common/wpn_denyselect.wav",
+        "connect" => "cstrike/sound/weapons/deagle-2.wav",
+        "bots" => "cstrike/sound/radio/locknload.wav",
+        "launch" => "cstrike/sound/radio/letsgo.wav",
+        "shuffle" => "cstrike/sound/weapons/de_clipin.wav",
+        _ => return None,
+    })
+}
+
+/// Sound files are a few KB; anything bigger is not what we expect.
+const MAX_SOUND_BYTES: u64 = 2 * 1024 * 1024;
+
+pub fn read_sound(dir: &Path, name: &str) -> Result<Vec<u8>, String> {
+    let rel = sound_file(name).ok_or_else(|| format!("Sonido desconocido: {name}"))?;
+    let path = dir.join(rel);
+    let len = fs::metadata(&path).map_err(|e| e.to_string())?.len();
+    if len > MAX_SOUND_BYTES {
+        return Err(format!("Archivo de sonido demasiado grande: {rel}"));
+    }
+    fs::read(&path).map_err(|e| e.to_string())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -253,6 +288,13 @@ mod tests {
         assert!(!is_valid_address("1.2.3.4 27015"));
         assert!(is_valid_map("de_dust2"));
         assert!(!is_valid_map("de_dust2;quit"));
+    }
+
+    #[test]
+    fn only_known_sounds_are_readable() {
+        assert!(sound_file("click").is_some());
+        assert!(sound_file("../../etc/passwd").is_none());
+        assert!(read_sound(Path::new("/tmp"), "../secret").is_err());
     }
 
     #[test]

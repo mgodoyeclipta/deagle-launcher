@@ -5,6 +5,7 @@ import { ArrowRightToSquare, Copy, Gear, Persons, Play, Shuffle } from "@gravity
 import { MonitorPicker } from "./MonitorPicker";
 import { SettingsDrawer } from "./SettingsDrawer";
 import { platform } from "../lib/platform";
+import { sfx } from "../lib/sfx";
 import type { GameDirStatus, GameExited, LaunchAction, LaunchOptions, MonitorInfo, Settings } from "../lib/types";
 
 interface Props {
@@ -61,7 +62,10 @@ export function MainScreen({ settings, status, onChange, onChangeGameDir }: Prop
       platform.restore();
       platform.readPlayerName(gameDir).then((n) => n && setName(n));
       platform.recentServers(gameDir).then(setServers);
-      if (!e.success) setCrash(e);
+      if (!e.success) {
+        setCrash(e);
+        sfx.play("deny");
+      }
     });
     return () => {
       unlisten.then((off) => off());
@@ -99,6 +103,7 @@ export function MainScreen({ settings, status, onChange, onChangeGameDir }: Prop
       if (settings.minimizeOnLaunch) platform.minimize();
     } catch (e) {
       setError(String(e));
+      sfx.play("deny");
     }
   }
 
@@ -110,7 +115,7 @@ export function MainScreen({ settings, status, onChange, onChangeGameDir }: Prop
             <h1 className="text-2xl font-semibold">Deagle Launcher</h1>
             <p className="text-xs text-muted">Para Counter-Strike 1.6 · Xash3D FWGS · cs16-client</p>
           </div>
-          <Button isIconOnly variant="ghost" aria-label="Ajustes" onPress={() => setSettingsOpen(true)}>
+          <Button isIconOnly variant="ghost" aria-label="Ajustes" data-sfx="open" onPress={() => setSettingsOpen(true)}>
             <Gear />
           </Button>
         </header>
@@ -130,7 +135,7 @@ export function MainScreen({ settings, status, onChange, onChangeGameDir }: Prop
         <div className="mt-auto flex flex-col gap-3">
           {serverOptions.length > 0 && server && (
             <div className="flex flex-col gap-2">
-              <Button size="lg" fullWidth isDisabled={running} onPress={() => launch({ kind: "connect", address: server })}>
+              <Button size="lg" fullWidth data-sfx="connect" isDisabled={running} onPress={() => launch({ kind: "connect", address: server })}>
                 <Play />
                 Continuar
               </Button>
@@ -164,6 +169,7 @@ export function MainScreen({ settings, status, onChange, onChangeGameDir }: Prop
                 variant={server ? "secondary" : "primary"}
                 size="lg"
                 className="flex-1"
+                data-sfx="bots"
                 isDisabled={running}
                 onPress={() => launch({ kind: "bots", map, count: settings.botCount })}
               >
@@ -180,6 +186,7 @@ export function MainScreen({ settings, status, onChange, onChangeGameDir }: Prop
                 size="lg"
                 variant="secondary"
                 aria-label="Otro mapa al azar"
+                data-sfx="shuffle"
                 isDisabled={running || maps.length < 2}
                 onPress={() => setMap(pickRandom(maps, map))}
               >
@@ -188,7 +195,7 @@ export function MainScreen({ settings, status, onChange, onChangeGameDir }: Prop
             </div>
           )}
 
-          <Button variant="tertiary" fullWidth isDisabled={running} onPress={() => launch({ kind: "menu" })}>
+          <Button variant="tertiary" fullWidth data-sfx="launch" isDisabled={running} onPress={() => launch({ kind: "menu" })}>
             <ArrowRightToSquare />
             Abrir juego
           </Button>
@@ -218,7 +225,7 @@ export function MainScreen({ settings, status, onChange, onChangeGameDir }: Prop
                 <Alert.Title>
                   El juego se cerró con un error{crash.code !== null ? ` (código ${crash.code})` : ""}
                 </Alert.Title>
-                <pre className="mt-2 max-h-32 overflow-auto rounded-md bg-background/60 p-2 font-mono text-[11px] leading-snug whitespace-pre-wrap select-text">
+                <pre className="log-box mt-2 max-h-32 overflow-auto rounded-md bg-background/60 p-2 font-mono text-[11px] leading-snug whitespace-pre-wrap select-text">
                   {crash.log.slice(-20).join("\n") || "Sin salida en el log."}
                 </pre>
                 <Button
@@ -237,7 +244,10 @@ export function MainScreen({ settings, status, onChange, onChangeGameDir }: Prop
 
         <SettingsDrawer
           isOpen={settingsOpen}
-          onOpenChange={setSettingsOpen}
+          onOpenChange={(open) => {
+            if (!open) sfx.play("close");
+            setSettingsOpen(open);
+          }}
           settings={settings}
           onChange={onChange}
           onChangeGameDir={() => {

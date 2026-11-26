@@ -41,3 +41,9 @@ pub fn launch_game(app: AppHandle, options: LaunchOptions) -> Result<(), String>
 pub fn is_game_running(state: State<'_, GameState>) -> bool {
     state.is_running()
 }
+
+/// Raw bytes of one of the launcher's UI sounds (see `game::sound_file`).
+#[tauri::command]
+pub fn game_sound(game_dir: String, name: String) -> Result<tauri::ipc::Response, String> {
+    game::read_sound(Path::new(&game_dir), &name).map(tauri::ipc::Response::new)
+}

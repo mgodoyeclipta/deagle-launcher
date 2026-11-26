@@ -30,7 +30,7 @@ export function MonitorPicker({ monitors, selected, supported, onSelect }: Props
         )}
       </div>
 
-      <div className="flex justify-center rounded-xl bg-surface p-3">
+      <div className="panel flex justify-center rounded-xl bg-surface p-3">
         <div className="relative" style={{ height: BOX_HEIGHT, width: BOX_HEIGHT * aspect, maxWidth: "100%" }}>
           {monitors.map((m) => {
             const isSelected = m.index === selected;
@@ -40,9 +40,11 @@ export function MonitorPicker({ monitors, selected, supported, onSelect }: Props
                 type="button"
                 onClick={() => onSelect(m.index)}
                 aria-pressed={isSelected}
+                data-selected={isSelected || undefined}
+                data-sfx="select"
                 aria-label={`${m.name}, ${m.width} por ${m.height}`}
                 className={[
-                  "absolute flex flex-col items-center justify-center gap-0.5 rounded-md border-2 text-center transition-colors",
+                  "monitor-tile absolute flex flex-col items-center justify-center gap-0.5 rounded-md border-2 text-center transition-colors",
                   "outline-none focus-visible:ring-2 focus-visible:ring-focus",
                   isSelected
                     ? "border-accent bg-accent/15 text-foreground"

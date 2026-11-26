@@ -1,5 +1,8 @@
 export type WindowMode = "windowed" | "fullscreen" | "borderless";
 
+/** "classic" = 2004-era Steam/HLDS look; "modern" = default HeroUI dark. */
+export type Skin = "classic" | "modern";
+
 export interface GameDirStatus {
   engine: boolean;
   executable: boolean;
@@ -51,6 +54,7 @@ export interface MonitorInfo {
 export type Resolution = "native" | `${number}x${number}`;
 
 export interface Settings {
+  skin: Skin;
   gameDir: string | null;
   windowMode: WindowMode;
   resolution: Resolution;
@@ -58,11 +62,16 @@ export interface Settings {
   botCount: number;
   extraArgs: string;
   minimizeOnLaunch: boolean;
+  /** UI sound effects, read from the user's game install. */
+  sounds: boolean;
+  /** 0–100. */
+  volume: number;
   /** Last server the launcher connected to (overrides the in-game history). */
   lastServer: string | null;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
+  skin: "classic",
   gameDir: null,
   windowMode: "borderless",
   resolution: "native",
@@ -70,5 +79,7 @@ export const DEFAULT_SETTINGS: Settings = {
   botCount: 9,
   extraArgs: "",
   minimizeOnLaunch: true,
+  sounds: true,
+  volume: 60,
   lastServer: null,
 };

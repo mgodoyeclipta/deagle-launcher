@@ -1,0 +1,445 @@
+/*
+ * Window chrome shared by both skins, plus the "classic" skin: a tribute to
+ * the 2003–2004 Steam / HLDS look (olive panels, bevelled borders, Tahoma).
+ *
+ * The classic rules are unlayered, so they win over HeroUI's and Tailwind's
+ * layered styles without needing !important. They target HeroUI's BEM
+ * classes (.button, .select__trigger, …) and React Aria data attributes.
+ */
+
+/* ------------------------------------------------------------------------ */
+/* Title bar (modern defaults)                                              */
+/* ------------------------------------------------------------------------ */
+
+.titlebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  flex-shrink: 0;
+  padding: 0 6px 0 12px;
+  background: var(--background);
+  border-bottom: 1px solid var(--border);
+  cursor: default;
+}
+
+.titlebar__icon {
+  width: 14px;
+  height: 14px;
+  color: var(--accent);
+  pointer-events: none;
+}
+
+.titlebar__title {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.titlebar__buttons {
+  display: flex;
+  gap: 2px;
+}
+
+.titlebar__button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 22px;
+  border-radius: 6px;
+  color: var(--muted);
+}
+
+.titlebar__button:hover {
+  background: var(--default);
+  color: var(--foreground);
+}
+
+.titlebar__button svg {
+  width: 10px;
+  height: 10px;
+  fill: currentColor;
+  stroke: currentColor;
+  stroke-width: 1.6;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Classic skin                                                             */
+/* ------------------------------------------------------------------------ */
+
+:root[data-skin="classic"] {
+  --c-bg: #4c5844;
+  --c-bg-dark: #3e4637;
+  --c-text: #dee5d7;
+  --c-text-dim: #a0aa95;
+  --c-label: #c4b550;
+  --c-light: #8c9284;
+  --c-dark: #282e22;
+  --c-select: #958831;
+  --c-danger: #e7795c;
+
+  /* Feed HeroUI's own tokens so anything not restyled below still fits. */
+  --background: var(--c-bg);
+  --foreground: var(--c-text);
+  --surface: var(--c-bg-dark);
+  --overlay: var(--c-bg);
+  --muted: var(--c-text-dim);
+  --default: var(--c-bg);
+  --default-foreground: var(--c-text);
+  --accent: var(--c-label);
+  --accent-foreground: var(--c-dark);
+  --focus: var(--c-label);
+  --border: var(--c-dark);
+  --field-background: var(--c-bg-dark);
+  --field-foreground: var(--c-text);
+  --radius: 0px;
+  --field-radius: 0px;
+
+  font-family: Tahoma, Verdana, "Segoe UI", sans-serif;
+  font-size: 12px;
+  -webkit-font-smoothing: none;
+}
+
+[data-skin="classic"] body {
+  background: var(--c-bg);
+}
+
+/* No rounded corners anywhere: 2004 didn't have them. */
+[data-skin="classic"] *,
+[data-skin="classic"] *::before,
+[data-skin="classic"] *::after {
+  border-radius: 0 !important;
+}
+
+/* Bevels ------------------------------------------------------------------ */
+
+[data-skin="classic"] .app-window {
+  border: 1px solid;
+  border-color: var(--c-light) var(--c-dark) var(--c-dark) var(--c-light);
+}
+
+[data-skin="classic"] .titlebar {
+  height: 26px;
+  padding: 0 4px 0 8px;
+  background: var(--c-bg);
+  border-bottom: none;
+}
+
+[data-skin="classic"] .titlebar__icon {
+  color: var(--c-text);
+}
+
+[data-skin="classic"] .titlebar__title {
+  font-family: Verdana, Tahoma, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+[data-skin="classic"] .titlebar__button {
+  width: 18px;
+  height: 16px;
+  color: var(--c-text);
+  background: var(--c-bg);
+  border: 1px solid;
+  border-color: var(--c-light) var(--c-dark) var(--c-dark) var(--c-light);
+}
+
+[data-skin="classic"] .titlebar__button:hover {
+  background: var(--c-bg);
+  color: #fff;
+}
+
+[data-skin="classic"] .titlebar__button:active {
+  border-color: var(--c-dark) var(--c-light) var(--c-light) var(--c-dark);
+}
+
+[data-skin="classic"] .titlebar__button svg {
+  width: 8px;
+  height: 8px;
+  stroke-width: 1.8;
+}
+
+/* Sunken panels: monitor picker, setup checklist, log box. */
+[data-skin="classic"] .panel,
+[data-skin="classic"] .log-box {
+  background: var(--c-bg-dark);
+  border: 1px solid;
+  border-color: var(--c-dark) var(--c-light) var(--c-light) var(--c-dark);
+}
+
+/* Typography ------------------------------------------------------------- */
+
+[data-skin="classic"] h1 {
+  font-family: Verdana, Tahoma, sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+[data-skin="classic"] .label,
+[data-skin="classic"] .switch__content {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--c-text-dim);
+}
+
+/* The focused field's label lights up, like VGUI2 did. */
+[data-skin="classic"] .textfield:focus-within .label,
+[data-skin="classic"] .select:focus-within .label,
+[data-skin="classic"] .switch[data-selected] .switch__content {
+  color: var(--c-label);
+}
+
+[data-skin="classic"] code {
+  font-family: inherit;
+}
+
+/* Buttons ---------------------------------------------------------------- */
+
+[data-skin="classic"] .button {
+  height: 26px;
+  padding: 0 12px;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--c-text);
+  background: var(--c-bg);
+  border: 1px solid;
+  border-color: var(--c-light) var(--c-dark) var(--c-dark) var(--c-light);
+  box-shadow: none;
+  transform: none;
+  transition: none;
+}
+
+[data-skin="classic"] .button--lg {
+  height: 38px;
+  font-size: 13px;
+}
+
+[data-skin="classic"] .button--sm {
+  height: 22px;
+  padding: 0 8px;
+}
+
+[data-skin="classic"] .button--icon-only {
+  width: 26px;
+  padding: 0;
+}
+
+[data-skin="classic"] .button--icon-only.button--lg {
+  width: 38px;
+}
+
+/* The default (primary) button gets the dark outer ring VGUI2 used. */
+[data-skin="classic"] .button--primary {
+  color: #fff;
+  outline: 1px solid #000;
+  outline-offset: 0;
+}
+
+[data-skin="classic"] .button--ghost {
+  border-color: transparent;
+  background: transparent;
+}
+
+@media (hover: hover) {
+  [data-skin="classic"] .button:hover:not([aria-disabled="true"]):not(:disabled) {
+    background: var(--c-bg);
+    color: var(--c-label);
+  }
+}
+
+[data-skin="classic"] .button[data-pressed="true"],
+[data-skin="classic"] .button:active {
+  background: var(--c-bg);
+  border-color: var(--c-dark) var(--c-light) var(--c-light) var(--c-dark);
+  transform: none;
+}
+
+[data-skin="classic"] .button:disabled,
+[data-skin="classic"] .button[aria-disabled="true"] {
+  opacity: 1;
+  color: var(--c-light);
+  text-shadow: 1px 1px 0 var(--c-dark);
+}
+
+[data-skin="classic"] .button svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Fields and dropdowns ---------------------------------------------------- */
+
+[data-skin="classic"] .input,
+[data-skin="classic"] .select__trigger {
+  min-height: 0;
+  height: 24px;
+  padding: 0 6px;
+  font-size: 12px;
+  color: var(--c-text);
+  background: var(--c-bg-dark);
+  border: 1px solid;
+  border-color: var(--c-dark) var(--c-light) var(--c-light) var(--c-dark);
+  box-shadow: none;
+  outline: none;
+}
+
+[data-skin="classic"] .input::placeholder {
+  color: var(--c-light);
+}
+
+[data-skin="classic"] .input:focus,
+[data-skin="classic"] .select__trigger[data-focus-visible] {
+  outline: none;
+  box-shadow: none;
+}
+
+[data-skin="classic"] .select__indicator {
+  color: var(--c-text);
+}
+
+[data-skin="classic"] .select__popover {
+  background: var(--c-bg-dark);
+  border: 1px solid var(--c-light);
+  box-shadow: none;
+  padding: 0;
+}
+
+[data-skin="classic"] .select__popover [role="option"] {
+  min-height: 0;
+  padding: 3px 6px;
+  font-size: 12px;
+  color: var(--c-text);
+}
+
+[data-skin="classic"] .select__popover [role="option"][data-hovered],
+[data-skin="classic"] .select__popover [role="option"][data-focused],
+[data-skin="classic"] .select__popover [role="option"][aria-selected="true"] {
+  background: var(--c-select);
+  color: #fff;
+}
+
+/* Switch → classic sunken checkbox with a check mark. */
+[data-skin="classic"] .switch__control {
+  width: 13px;
+  height: 13px;
+  min-width: 13px;
+  background: var(--c-bg-dark);
+  border: 1px solid;
+  border-color: var(--c-dark) var(--c-light) var(--c-light) var(--c-dark);
+  box-shadow: none;
+}
+
+[data-skin="classic"] .switch__thumb {
+  display: none;
+}
+
+[data-skin="classic"] .switch[data-selected] .switch__control {
+  background: var(--c-bg-dark);
+}
+
+[data-skin="classic"] .switch[data-selected] .switch__control::after {
+  content: "";
+  display: block;
+  width: 7px;
+  height: 4px;
+  margin: 2px 0 0 2px;
+  border-left: 2px solid var(--c-text);
+  border-bottom: 2px solid var(--c-text);
+  transform: rotate(-45deg);
+}
+
+/* Settings drawer → classic tool window docked to the right. ---------------- */
+
+[data-skin="classic"] .drawer__backdrop {
+  background: rgb(0 0 0 / 0.25);
+  backdrop-filter: none;
+}
+
+[data-skin="classic"] .drawer__content {
+  background: transparent;
+  box-shadow: none;
+}
+
+[data-skin="classic"] .drawer__dialog {
+  background: var(--c-bg);
+  box-shadow: none;
+  border: 1px solid;
+  border-color: var(--c-light) var(--c-dark) var(--c-dark) var(--c-light);
+}
+
+[data-skin="classic"] .drawer__heading {
+  font-family: Verdana, Tahoma, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+[data-skin="classic"] .drawer__close-trigger {
+  width: 18px;
+  height: 16px;
+  color: var(--c-text);
+  background: var(--c-bg);
+  border: 1px solid;
+  border-color: var(--c-light) var(--c-dark) var(--c-dark) var(--c-light);
+}
+
+/* Alerts → sunken message box. ------------------------------------------- */
+
+[data-skin="classic"] .alert {
+  background: var(--c-bg-dark);
+  border: 1px solid;
+  border-color: var(--c-dark) var(--c-light) var(--c-light) var(--c-dark);
+  box-shadow: none;
+}
+
+[data-skin="classic"] .alert__title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--c-label);
+}
+
+[data-skin="classic"] .alert--danger .alert__title,
+[data-skin="classic"] .alert--danger .alert__indicator {
+  color: var(--c-danger);
+}
+
+[data-skin="classic"] .alert__description {
+  font-size: 12px;
+  color: var(--c-text);
+}
+
+/* Monitor picker tiles ---------------------------------------------------- */
+
+[data-skin="classic"] .monitor-tile {
+  background: var(--c-bg);
+  color: var(--c-text-dim);
+  border: 1px solid;
+  border-color: var(--c-light) var(--c-dark) var(--c-dark) var(--c-light);
+}
+
+[data-skin="classic"] .monitor-tile:hover {
+  color: var(--c-text);
+}
+
+[data-skin="classic"] .monitor-tile[data-selected] {
+  color: var(--c-label);
+  background: var(--c-bg);
+  outline: 1px solid var(--c-label);
+  outline-offset: -3px;
+}
+
+/* Status colours used by Tailwind utilities in the screens. */
+[data-skin="classic"] .text-success {
+  color: var(--c-label);
+}
+
+[data-skin="classic"] .text-danger {
+  color: var(--c-danger);
+}
+
+[data-skin="classic"] .text-warning {
+  color: var(--c-label);
+}

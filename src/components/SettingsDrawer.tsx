@@ -1,7 +1,7 @@
 import { Button, Drawer, Input, Label, ListBox, Select, Switch, TextField } from "@heroui/react";
 import type { Key } from "@heroui/react";
 import { FolderOpen } from "@gravity-ui/icons";
-import type { Resolution, Settings, WindowMode } from "../lib/types";
+import type { Resolution, Settings, Skin, WindowMode } from "../lib/types";
 
 interface Props {
   isOpen: boolean;
@@ -10,6 +10,11 @@ interface Props {
   onChange: (patch: Partial<Settings>) => void;
   onChangeGameDir: () => void;
 }
+
+const SKINS: { id: Skin; label: string }[] = [
+  { id: "classic", label: "Clásico (estilo 2004)" },
+  { id: "modern", label: "Moderno" },
+];
 
 const WINDOW_MODES: { id: WindowMode; label: string }[] = [
   { id: "borderless", label: "Pantalla completa sin bordes" },
@@ -27,6 +32,12 @@ const RESOLUTIONS: { id: Resolution; label: string }[] = [
 ];
 
 const BOT_COUNTS = [3, 5, 9, 15, 19, 31];
+
+const VOLUMES = [
+  { id: 30, label: "Bajo" },
+  { id: 60, label: "Medio" },
+  { id: 100, label: "Alto" },
+];
 
 function SimpleSelect<T extends string | number>({
   label,
@@ -91,6 +102,13 @@ export function SettingsDrawer({ isOpen, onOpenChange, settings, onChange, onCha
               </div>
 
               <SimpleSelect
+                label="Tema"
+                value={settings.skin}
+                options={SKINS}
+                onChange={(skin) => onChange({ skin })}
+              />
+
+              <SimpleSelect
                 label="Modo de pantalla"
                 value={settings.windowMode}
                 options={WINDOW_MODES}
@@ -130,6 +148,24 @@ export function SettingsDrawer({ isOpen, onOpenChange, settings, onChange, onCha
                   Minimizar el launcher al jugar
                 </Switch.Content>
               </Switch>
+
+              <Switch isSelected={settings.sounds} onChange={(sounds) => onChange({ sounds })}>
+                <Switch.Content>
+                  <Switch.Control>
+                    <Switch.Thumb />
+                  </Switch.Control>
+                  Sonidos clásicos de HL y CS
+                </Switch.Content>
+              </Switch>
+
+              {settings.sounds && (
+                <SimpleSelect
+                  label="Volumen de los sonidos"
+                  value={settings.volume}
+                  options={VOLUMES}
+                  onChange={(volume) => onChange({ volume })}
+                />
+              )}
             </Drawer.Body>
           </Drawer.Dialog>
         </Drawer.Content>

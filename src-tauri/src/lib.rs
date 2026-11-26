@@ -17,6 +17,7 @@ pub fn run() {
             commands::list_maps,
             commands::launch_game,
             commands::is_game_running,
+            commands::game_sound,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

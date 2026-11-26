@@ -33,8 +33,11 @@ export interface Platform {
   launchGame(options: LaunchOptions): Promise<void>;
   isGameRunning(): Promise<boolean>;
   onGameExited(handler: (e: GameExited) => void): Promise<() => void>;
+  /** Raw WAV bytes of a UI sound from the user's game folder, or null. */
+  gameSound(gameDir: string, name: string): Promise<ArrayBuffer | null>;
   minimize(): Promise<void>;
   restore(): Promise<void>;
+  close(): Promise<void>;
 }
 
 const SETTINGS_KEY = "settings";
@@ -101,7 +104,17 @@ const tauriPlatform: Platform = {
 
   onGameExited: (handler) => listen<GameExited>("game-exited", (e) => handler(e.payload)),
 
+  async gameSound(gameDir, name) {
+    try {
+      return await invoke<ArrayBuffer>("game_sound", { gameDir, name });
+    } catch {
+      return null; // missing file: just stay silent
+    }
+  },
+
   minimize: () => getCurrentWindow().minimize(),
+
+  close: () => getCurrentWindow().close(),
 
   async restore() {
     const win = getCurrentWindow();
@@ -191,8 +204,12 @@ const mockPlatform: Platform = {
     return () => mockListeners.delete(handler);
   },
 
+  // Valve sounds are not available outside the native app.
+  gameSound: async () => null,
+
   minimize: async () => {},
   restore: async () => {},
+  close: async () => {},
 };
 
 export const platform: Platform = isTauri() ? tauriPlatform : mockPlatform;

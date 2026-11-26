@@ -21,7 +21,9 @@
         "resizable": false,
         "maximizable": false,
         "theme": "Dark",
-        "center": true
+        "center": true,
+        "decorations": false,
+        "shadow": true
       }
     ],
     "security": {

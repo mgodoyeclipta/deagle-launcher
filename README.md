@@ -18,6 +18,11 @@ Hecho con Tauri 2 (Rust) + React 19 + Vite + Tailwind v4 + HeroUI v3.
 - **Ajustes:** carpeta, modo (sin bordes / pantalla completa / ventana), resolución, cantidad de bots, argumentos extra, minimizar al jugar.
 - Mientras jugás el launcher se minimiza y vuelve al cerrar el juego. Si el juego crashea, muestra el final del log (`~/Library/Logs/com.mgodoy.deaglelauncher/game.log`).
 
+### Temas y sonidos
+
+- **Clásico** (por defecto): homenaje a la interfaz de Steam/HLDS de 2003–2004 — verde oliva, bordes biselados, Tahoma, barra de título propia con `_` y `X`. También hay un tema **Moderno**.
+- **Sonidos clásicos** de Half-Life y Counter-Strike al hacer click (menú de HL, disparo de Deagle en *Continuar*, "Lock 'n load" en *Práctica con bots*, "Let's go" en *Abrir juego*…). Se leen en tiempo de ejecución desde **tu** carpeta del juego (`valve/sound`, `cstrike/sound`) y nunca se incluyen en el launcher. Se pueden apagar o bajar en Ajustes.
+
 ### Elegir monitor
 
 El selector pasa `-display N` al motor, pero el Xash3D FWGS actual **no soporta** ese argumento: siempre abre en la pantalla principal. El launcher lo detecta y avisa. Falta un parche chico al motor (`VID_CreateWindow` en `engine/platform/sdl2/vid_sdl2.c`, usando `SDL_WINDOWPOS_CENTERED_DISPLAY(n)`).
@@ -61,7 +66,7 @@ Deagle Launcher es un proyecto independiente y gratuito, **sin afiliación ni re
 
 - Counter-Strike, Half-Life, Steam y sus logos son marcas registradas de Valve Corporation.
 - Desert Eagle es una marca registrada de Magnum Research, Inc. "Deagle" se usa solo como apodo popular del arma dentro del juego.
-- Este repositorio no contiene ni distribuye archivos del juego (mapas, modelos, sonidos, texturas, sprites ni íconos de Valve). El launcher solo lee los archivos que cada usuario copió de su propia compra en Steam.
+- Este repositorio no contiene ni distribuye archivos del juego (mapas, modelos, sonidos, texturas, sprites ni íconos de Valve). El launcher solo lee los archivos que cada usuario copió de su propia compra en Steam. Eso incluye los efectos de sonido de la interfaz: se leen desde la instalación del usuario.
 - Xash3D FWGS (GPL-3.0), cs16-client (GPL-2.0+ con excepción para el motor de Half-Life, más la licencia del Half-Life SDK) y YaPB (MIT) son proyectos de terceros con sus propias licencias. Este launcher no los incluye: los ejecuta desde la carpeta del usuario.
 
 ## Licencia

@@ -61,7 +61,7 @@ export function SetupScreen({ gameDir, status, busy, error, onPick, onFix, onCon
         )}
 
         {status && (
-          <ul className="flex flex-col gap-1 rounded-xl bg-surface p-2">
+          <ul className="panel flex flex-col gap-1 rounded-xl bg-surface p-2">
             {checks(status).map((c) => (
               <li key={c.label} className="flex items-center gap-3 rounded-lg px-2 py-1.5">
                 {c.ok ? (

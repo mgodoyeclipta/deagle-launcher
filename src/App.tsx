@@ -2,12 +2,25 @@ import { useCallback, useEffect, useState } from "react";
 import { Spinner } from "@heroui/react";
 import { MainScreen } from "./components/MainScreen";
 import { SetupScreen } from "./components/SetupScreen";
+import { TitleBar } from "./components/TitleBar";
 import { platform } from "./lib/platform";
+import { installClickSounds, sfx } from "./lib/sfx";
 import type { GameDirStatus, Settings } from "./lib/types";
 
 type Phase = "loading" | "setup" | "main";
 
 export default function App() {
+  return (
+    <div className="app-window flex h-full flex-col">
+      <TitleBar title="Deagle Launcher" />
+      <div className="min-h-0 flex-1">
+        <Screens />
+      </div>
+    </div>
+  );
+}
+
+function Screens() {
   const [phase, setPhase] = useState<Phase>("loading");
   const [settings, setSettings] = useState<Settings | null>(null);
   const [status, setStatus] = useState<GameDirStatus | null>(null);
@@ -27,6 +40,17 @@ export default function App() {
       }
     })();
   }, []);
+
+  useEffect(() => {
+    if (settings) document.documentElement.dataset.skin = settings.skin;
+  }, [settings?.skin]);
+
+  useEffect(() => installClickSounds(), []);
+
+  useEffect(() => {
+    if (!settings) return;
+    sfx.configure({ gameDir: settings.gameDir, enabled: settings.sounds, volume: settings.volume });
+  }, [settings?.gameDir, settings?.sounds, settings?.volume]);
 
   const update = useCallback((patch: Partial<Settings>) => {
     setSettings((prev) => {
