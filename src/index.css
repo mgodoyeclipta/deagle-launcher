@@ -1,0 +1,24 @@
+@import "tailwindcss";
+@import "@heroui/styles";
+
+/* CS 1.6 HUD orange (hud_color "255 160 0") as the accent. */
+:root.dark,
+[data-theme="dark"] {
+  --accent: oklch(0.79 0.17 70);
+  --accent-foreground: var(--eclipse);
+  --focus: var(--accent);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  user-select: none;
+  -webkit-user-select: none;
+  overflow: hidden;
+}
