@@ -63,3 +63,7 @@ Deagle Launcher es un proyecto independiente y gratuito, **sin afiliación ni re
 - Desert Eagle es una marca registrada de Magnum Research, Inc. "Deagle" se usa solo como apodo popular del arma dentro del juego.
 - Este repositorio no contiene ni distribuye archivos del juego (mapas, modelos, sonidos, texturas, sprites ni íconos de Valve). El launcher solo lee los archivos que cada usuario copió de su propia compra en Steam.
 - Xash3D FWGS (GPL-3.0), cs16-client (GPL-2.0+ con excepción para el motor de Half-Life, más la licencia del Half-Life SDK) y YaPB (MIT) son proyectos de terceros con sus propias licencias. Este launcher no los incluye: los ejecuta desde la carpeta del usuario.
+
+## Licencia
+
+Deagle Launcher es software libre bajo la [GNU General Public License v3.0](LICENSE) o posterior (`GPL-3.0-or-later`).
