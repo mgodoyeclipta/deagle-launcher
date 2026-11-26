@@ -27,6 +27,21 @@ Hecho con Tauri 2 (Rust) + React 19 + Vite + Tailwind v4 + HeroUI v3.
 
 El selector pasa `-display N` al motor, pero el Xash3D FWGS actual **no soporta** ese argumento: siempre abre en la pantalla principal. El launcher lo detecta y avisa. Falta un parche chico al motor (`VID_CreateWindow` en `engine/platform/sdl2/vid_sdl2.c`, usando `SDL_WINDOWPOS_CENTERED_DISPLAY(n)`).
 
+## Instalar
+
+Requiere macOS 11 o superior en Apple Silicon.
+
+1. Compilá la versión release (ver [Desarrollo](#desarrollo)) con `npm run tauri build`.
+2. Abrí `src-tauri/target/release/bundle/dmg/Deagle Launcher_<versión>_aarch64.dmg` y arrastrá **Deagle Launcher** a **Aplicaciones**.
+   O copiá directamente `src-tauri/target/release/bundle/macos/Deagle Launcher.app` a `/Applications`.
+3. La primera vez, elegí tu carpeta de Xash3D.
+
+La app no está firmada con una cuenta de Apple Developer: si la descargás de otra Mac, macOS la va a bloquear la primera vez. Abrila con clic derecho → **Abrir**, o quitale la cuarentena:
+
+```bash
+xattr -dr com.apple.quarantine "/Applications/Deagle Launcher.app"
+```
+
 ## Desarrollo
 
 Requisitos: Rust (rustup), Node 20+, Xcode Command Line Tools.
