@@ -65,6 +65,82 @@
 }
 
 /* ------------------------------------------------------------------------ */
+/* Server browser (modern defaults)                                         */
+/* ------------------------------------------------------------------------ */
+
+.source-tab {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.source-tab:hover {
+  color: var(--foreground);
+}
+
+.source-tab[data-selected] {
+  background: var(--default);
+  color: var(--foreground);
+}
+
+.update-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  pointer-events: none;
+}
+
+.sort-link {
+  color: var(--muted);
+}
+
+.sort-link[data-selected] {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.server-row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  text-align: left;
+  color: var(--foreground);
+}
+
+.server-row:hover {
+  background: var(--default);
+}
+
+.server-row[data-selected] {
+  background: color-mix(in oklab, var(--accent) 18%, transparent);
+}
+
+.server-row[data-offline] {
+  opacity: 0.5;
+}
+
+[data-ping="good"] {
+  color: var(--success);
+}
+
+[data-ping="ok"] {
+  color: var(--warning);
+}
+
+[data-ping="bad"] {
+  color: var(--danger);
+}
+
+/* ------------------------------------------------------------------------ */
 /* Classic skin                                                             */
 /* ------------------------------------------------------------------------ */
 
@@ -442,4 +518,110 @@
 
 [data-skin="classic"] .text-warning {
   color: var(--c-label);
+}
+
+/* Section tabs → raised VGUI2 tabs, like HLDS's Main / Configure. -------- */
+
+[data-skin="classic"] .tabs__list {
+  gap: 2px;
+  padding: 0;
+  background: transparent;
+  border-bottom: 1px solid var(--c-light);
+}
+
+[data-skin="classic"] .tabs__tab {
+  flex: 0 0 auto;
+  width: auto;
+  height: 22px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--c-text-dim);
+  background: var(--c-bg);
+  border: 1px solid;
+  border-color: var(--c-light) var(--c-dark) transparent var(--c-light);
+  margin-bottom: -1px;
+}
+
+[data-skin="classic"] .tabs__tab[data-selected] {
+  color: var(--c-label);
+  border-bottom-color: var(--c-bg);
+}
+
+[data-skin="classic"] .tabs__tab:hover {
+  color: var(--c-text);
+}
+
+[data-skin="classic"] .tabs__indicator {
+  display: none;
+}
+
+/* Server browser ---------------------------------------------------------- */
+
+[data-skin="classic"] .source-tab {
+  padding: 2px 8px;
+  font-size: 12px;
+  color: var(--c-text-dim);
+  border: 1px solid transparent;
+}
+
+[data-skin="classic"] .source-tab[data-selected] {
+  color: var(--c-label);
+  background: var(--c-bg);
+  border-color: var(--c-light) var(--c-dark) var(--c-dark) var(--c-light);
+}
+
+[data-skin="classic"] .sort-link[data-selected] {
+  color: var(--c-label);
+}
+
+[data-skin="classic"] .server-list {
+  padding: 0;
+}
+
+[data-skin="classic"] .server-row {
+  padding: 3px 6px;
+  gap: 8px;
+}
+
+[data-skin="classic"] .server-row:hover {
+  background: transparent;
+  color: #fff;
+}
+
+[data-skin="classic"] .server-row[data-selected] {
+  background: var(--c-select);
+  color: #fff;
+}
+
+[data-skin="classic"] .server-row[data-selected] .text-muted,
+[data-skin="classic"] .server-row[data-selected] [data-ping] {
+  color: #f1ecc8;
+}
+
+[data-skin="classic"] [data-ping="good"] {
+  color: #9fd16b;
+}
+
+[data-skin="classic"] [data-ping="ok"] {
+  color: var(--c-label);
+}
+
+[data-skin="classic"] [data-ping="bad"] {
+  color: var(--c-danger);
+}
+
+[data-skin="classic"] .server-detail .text-sm.font-semibold {
+  font-family: Verdana, Tahoma, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+[data-skin="classic"] .update-dot {
+  top: 3px;
+  right: 3px;
+  width: 6px;
+  height: 6px;
+  background: var(--c-label);
+  outline: 1px solid var(--c-dark);
 }

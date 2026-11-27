@@ -47,3 +47,58 @@ pub fn is_game_running(state: State<'_, GameState>) -> bool {
 pub fn game_sound(game_dir: String, name: String) -> Result<tauri::ipc::Response, String> {
     game::read_sound(Path::new(&game_dir), &name).map(tauri::ipc::Response::new)
 }
+
+/// Live A2S info for each address (name, map, players, ping), in input order.
+#[tauri::command]
+pub async fn query_servers(addresses: Vec<String>) -> Result<Vec<crate::a2s::ServerStatus>, String> {
+    if addresses.len() > crate::a2s::MAX_SERVERS {
+        return Err(format!("Demasiados servidores (máximo {})", crate::a2s::MAX_SERVERS));
+    }
+    if let Some(bad) = addresses.iter().find(|a| !game::is_valid_address(a)) {
+        return Err(format!("Dirección inválida: {bad}"));
+    }
+    Ok(crate::a2s::query_many(addresses).await)
+}
+
+/// Players currently on a server (name, score, time connected).
+#[tauri::command]
+pub async fn query_players(address: String) -> Result<Vec<crate::a2s::PlayerInfo>, String> {
+    if !game::is_valid_address(&address) {
+        return Err(format!("Dirección inválida: {address}"));
+    }
+    crate::a2s::query_players(&address).await
+}
+
+/// Engine build/commit and cs16-client build date of the user's install.
+#[tauri::command]
+pub fn installed_versions(game_dir: String) -> game::InstalledVersions {
+    game::installed_versions(Path::new(&game_dir))
+}
+
+/// Whether a Discord application ID is configured in this build.
+#[tauri::command]
+pub fn discord_available() -> bool {
+    crate::discord::is_configured()
+}
+
+/// Sets (or, with `None`, clears) the Discord Rich Presence. Runs off the
+/// main thread because talking to Discord's IPC socket can block briefly.
+#[tauri::command]
+pub async fn discord_presence(
+    app: AppHandle,
+    presence: Option<crate::discord::Presence>,
+) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        use tauri::Manager;
+        let state = app.state::<crate::discord::DiscordState>();
+        match presence {
+            Some(p) => state.set(&p),
+            None => {
+                state.clear();
+                Ok(())
+            }
+        }
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}

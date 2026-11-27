@@ -1,4 +1,6 @@
+mod a2s;
 mod commands;
+mod discord;
 mod game;
 mod launch;
 
@@ -9,6 +11,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_store::Builder::default().build())
         .manage(launch::GameState::default())
+        .manage(discord::DiscordState::default())
         .invoke_handler(tauri::generate_handler![
             commands::check_game_dir,
             commands::fix_game_dir,
@@ -18,6 +21,11 @@ pub fn run() {
             commands::launch_game,
             commands::is_game_running,
             commands::game_sound,
+            commands::query_servers,
+            commands::query_players,
+            commands::installed_versions,
+            commands::discord_available,
+            commands::discord_presence,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

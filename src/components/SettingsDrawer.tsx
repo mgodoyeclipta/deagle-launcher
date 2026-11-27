@@ -1,6 +1,8 @@
-import { Button, Drawer, Input, Label, ListBox, Select, Switch, TextField } from "@heroui/react";
+import { Button, Drawer, Input, Label, ListBox, Select, Spinner, Switch, TextField } from "@heroui/react";
 import type { Key } from "@heroui/react";
-import { FolderOpen } from "@gravity-ui/icons";
+import { ArrowUpRightFromSquare, CircleCheck, CircleExclamation, FolderOpen } from "@gravity-ui/icons";
+import { platform } from "../lib/platform";
+import type { ComponentUpdate, UpdateReport } from "../lib/updates";
 import type { Resolution, Settings, Skin, WindowMode } from "../lib/types";
 
 interface Props {
@@ -9,6 +11,10 @@ interface Props {
   settings: Settings;
   onChange: (patch: Partial<Settings>) => void;
   onChangeGameDir: () => void;
+  discordAvailable: boolean;
+  updates: UpdateReport | null;
+  checkingUpdates: boolean;
+  onCheckUpdates: () => void;
 }
 
 const SKINS: { id: Skin; label: string }[] = [
@@ -79,7 +85,48 @@ function SimpleSelect<T extends string | number>({
   );
 }
 
-export function SettingsDrawer({ isOpen, onOpenChange, settings, onChange, onChangeGameDir }: Props) {
+function UpdateRow({ label, update }: { label: string; update: ComponentUpdate }) {
+  return (
+    <li className="flex items-start gap-2">
+      {update.available ? (
+        <CircleExclamation className="mt-0.5 size-4 shrink-0 text-warning" />
+      ) : (
+        <CircleCheck className="mt-0.5 size-4 shrink-0 text-success" />
+      )}
+      <div className="min-w-0 flex-1">
+        <p className="text-sm">{label}</p>
+        <p className="text-xs text-muted">
+          {update.current ?? "Versión desconocida"}
+          {update.available ? ` → ${update.latest}` : update.error ? "" : " · al día"}
+        </p>
+        {update.error && <p className="text-xs text-muted">{update.error}</p>}
+      </div>
+      {update.available && (
+        <Button
+          isIconOnly
+          size="sm"
+          variant="ghost"
+          aria-label={`Ver actualización de ${label}`}
+          onPress={() => platform.openUrl(update.url)}
+        >
+          <ArrowUpRightFromSquare />
+        </Button>
+      )}
+    </li>
+  );
+}
+
+export function SettingsDrawer({
+  isOpen,
+  onOpenChange,
+  settings,
+  onChange,
+  onChangeGameDir,
+  discordAvailable,
+  updates,
+  checkingUpdates,
+  onCheckUpdates,
+}: Props) {
   return (
     <Drawer>
       <Drawer.Backdrop isOpen={isOpen} onOpenChange={onOpenChange}>
@@ -166,6 +213,40 @@ export function SettingsDrawer({ isOpen, onOpenChange, settings, onChange, onCha
                   onChange={(volume) => onChange({ volume })}
                 />
               )}
+              {discordAvailable && (
+                <Switch
+                  isSelected={settings.discordPresence}
+                  onChange={(discordPresence) => onChange({ discordPresence })}
+                >
+                  <Switch.Content>
+                    <Switch.Control>
+                      <Switch.Thumb />
+                    </Switch.Control>
+                    Mostrar en Discord a qué estoy jugando
+                  </Switch.Content>
+                </Switch>
+              )}
+
+              <div className="flex flex-col gap-2 border-t border-border pt-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium">Actualizaciones</p>
+                  <Button size="sm" variant="secondary" isPending={checkingUpdates} onPress={onCheckUpdates}>
+                    {({ isPending }) => (isPending ? <Spinner size="sm" color="current" /> : "Buscar ahora")}
+                  </Button>
+                </div>
+                {updates ? (
+                  <ul className="flex flex-col gap-2">
+                    <UpdateRow label="Deagle Launcher" update={updates.launcher} />
+                    <UpdateRow label="Motor Xash3D FWGS" update={updates.engine} />
+                    <UpdateRow label="cs16-client" update={updates.client} />
+                  </ul>
+                ) : (
+                  <p className="text-xs text-muted">{checkingUpdates ? "Buscando…" : "Todavía no se buscaron."}</p>
+                )}
+                <p className="text-[11px] leading-snug text-muted">
+                  Solo avisa y abre la página oficial: el launcher no descarga ni reemplaza archivos del juego.
+                </p>
+              </div>
             </Drawer.Body>
           </Drawer.Dialog>
         </Drawer.Content>

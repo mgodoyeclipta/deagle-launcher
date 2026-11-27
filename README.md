@@ -23,6 +23,25 @@ Hecho con Tauri 2 (Rust) + React 19 + Vite + Tailwind v4 + HeroUI v3.
 - **Clásico** (por defecto): homenaje a la interfaz de Steam/HLDS de 2003–2004 — verde oliva, bordes biselados, Tahoma, barra de título propia con `_` y `X`. También hay un tema **Moderno**.
 - **Sonidos clásicos** de Half-Life y Counter-Strike al hacer click (menú de HL, disparo de Deagle en *Continuar*, "Lock 'n load" en *Práctica con bots*, "Let's go" en *Abrir juego*…). Se leen en tiempo de ejecución desde **tu** carpeta del juego (`valve/sound`, `cstrike/sound`) y nunca se incluyen en el launcher. Se pueden apagar o bajar en Ajustes.
 
+### Explorador de servidores
+
+Pestaña **Servidores** con datos en tiempo real (nombre, mapa, jugadores, ping, contraseña y lista de jugadores) consultados **directamente a cada servidor** con el protocolo de consultas de Valve (A2S). No se usan ni se leen datos de sitios de terceros como GameTracker: solo hay un botón que abre su página en el navegador.
+
+Listas:
+
+- **Argentina**: lista curada en [`servers/argentina.json`](servers/argentina.json). Para sumar un servidor público, abrí un PR. El launcher la baja de GitHub y, si no puede, usa la copia incluida.
+- **Internet**: la lista pública que usa el propio Xash3D FWGS (`xash.su/server-list`).
+- **Historial**: los servidores del historial del juego.
+- **Favoritos**: los que marques con la estrella.
+
+### Actualizaciones
+
+Al abrir, compara el launcher, el motor Xash3D FWGS (por el build/commit que el motor escribe en sus `.cfg`) y cs16-client (por la fecha de compilación) contra sus releases oficiales en GitHub. Solo avisa y abre la página: no descarga ni reemplaza archivos del juego.
+
+### Discord Rich Presence
+
+Mientras jugás, tu perfil de Discord muestra el mapa, el servidor y los jugadores (se puede apagar en Ajustes). Usa la app de Discord local por IPC. Para activarlo, poné el ID de la aplicación de Discord en `CLIENT_ID` de [`src-tauri/src/discord.rs`](src-tauri/src/discord.rs) y subí una imagen con la clave `logo` en *Rich Presence → Art Assets*.
+
 ### Elegir monitor
 
 El selector pasa `-display N` al motor, pero el Xash3D FWGS actual **no soporta** ese argumento: siempre abre en la pantalla principal. El launcher lo detecta y avisa. Falta un parche chico al motor (`VID_CreateWindow` en `engine/platform/sdl2/vid_sdl2.c`, usando `SDL_WINDOWPOS_CENTERED_DISPLAY(n)`).
@@ -70,7 +89,9 @@ src/                     React
   lib/platform.ts        puente a Tauri (o simulación en navegador)
   lib/types.ts           tipos compartidos con Rust
 src-tauri/src/           Rust
-  game.rs                chequeo de carpeta, config.cfg, servidores, mapas
+  game.rs                chequeo de carpeta, config.cfg, historial, mapas, versiones, sonidos
+  a2s.rs                 consultas A2S a servidores (info y jugadores)
+  discord.rs             Discord Rich Presence
   launch.rs              armado de argumentos, lanzar xash3d, evento al salir
   commands.rs            comandos expuestos a React con invoke()
 ```

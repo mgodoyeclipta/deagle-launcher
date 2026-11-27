@@ -1,0 +1,7 @@
+{
+  "description": "Servidores argentinos de Counter-Strike 1.6 para la pestaña Argentina de Deagle Launcher. Para sumar uno, abrí un PR agregando su dirección (IP:puerto). Solo servidores públicos.",
+  "servers": [
+    { "address": "45.235.98.52:27038", "name": "Nostalgia Gamers Argentina — Público III" },
+    { "address": "186.19.63.56:27015", "name": "[ARG] Counter-Strike 1.6 Server +Bots" }
+  ]
+}

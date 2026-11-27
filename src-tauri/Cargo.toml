@@ -1,6 +1,6 @@
 [package]
 name = "deagle-launcher"
-version = "0.2.0"
+version = "0.3.0"
 description = "Launcher for Counter-Strike 1.6 on Xash3D FWGS"
 authors = ["mgodoy"]
 license = "GPL-3.0-or-later"
@@ -25,6 +25,8 @@ tauri-plugin-dialog = "2"
 tauri-plugin-store = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+tokio = { version = "1", features = ["net", "time", "rt"] }
+discord-rich-presence = "1.1.0"
 
 
 # Read the optimization guideline for more details: https://tauri.app/concept/size/#cargo-configuration

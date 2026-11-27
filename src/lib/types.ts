@@ -31,6 +31,52 @@ export interface LaunchOptions {
   playerName?: string;
 }
 
+export interface ServerInfo {
+  name: string;
+  map: string;
+  folder: string;
+  game: string;
+  players: number;
+  maxPlayers: number;
+  bots: number;
+  password: boolean;
+  vac: boolean;
+  pingMs: number;
+}
+
+export interface ServerStatus {
+  address: string;
+  info: ServerInfo | null;
+  error: string | null;
+}
+
+export interface PlayerInfo {
+  name: string;
+  score: number;
+  durationSecs: number;
+}
+
+export interface EngineVersion {
+  build: number;
+  commit: string;
+  branch: string;
+  platform: string;
+}
+
+export interface InstalledVersions {
+  engine: EngineVersion | null;
+  /** Unix seconds. */
+  clientBuiltAt: number | null;
+}
+
+/** What Discord shows while playing. */
+export interface Presence {
+  details: string;
+  state?: string;
+  /** Unix milliseconds. */
+  startedAt?: number;
+}
+
 export interface GameExited {
   code: number | null;
   success: boolean;
@@ -68,6 +114,10 @@ export interface Settings {
   volume: number;
   /** Last server the launcher connected to (overrides the in-game history). */
   lastServer: string | null;
+  /** Server addresses starred in the server browser. */
+  favorites: string[];
+  /** Show the current game on the user's Discord profile. */
+  discordPresence: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -82,4 +132,6 @@ export const DEFAULT_SETTINGS: Settings = {
   sounds: true,
   volume: 60,
   lastServer: null,
+  favorites: [],
+  discordPresence: true,
 };

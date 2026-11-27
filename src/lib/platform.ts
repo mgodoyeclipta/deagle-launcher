@@ -5,17 +5,23 @@
  * plain browser (`npm run dev`) it falls back to an in-memory mock so the UI
  * can be developed and previewed without building the native app.
  */
+import { getVersion } from "@tauri-apps/api/app";
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { availableMonitors, getCurrentWindow } from "@tauri-apps/api/window";
 import { open } from "@tauri-apps/plugin-dialog";
+import { openUrl } from "@tauri-apps/plugin-opener";
 import { Store } from "@tauri-apps/plugin-store";
 import {
   DEFAULT_SETTINGS,
   type GameDirStatus,
   type GameExited,
+  type InstalledVersions,
   type LaunchOptions,
   type MonitorInfo,
+  type PlayerInfo,
+  type Presence,
+  type ServerStatus,
   type Settings,
 } from "./types";
 
@@ -35,6 +41,17 @@ export interface Platform {
   onGameExited(handler: (e: GameExited) => void): Promise<() => void>;
   /** Raw WAV bytes of a UI sound from the user's game folder, or null. */
   gameSound(gameDir: string, name: string): Promise<ArrayBuffer | null>;
+  /** Live A2S info for each server, in the same order. */
+  queryServers(addresses: string[]): Promise<ServerStatus[]>;
+  queryPlayers(address: string): Promise<PlayerInfo[]>;
+  /** Opens an http(s) link in the default browser. */
+  openUrl(url: string): Promise<void>;
+  installedVersions(gameDir: string): Promise<InstalledVersions>;
+  appVersion(): Promise<string>;
+  /** False when this build has no Discord application ID. */
+  discordAvailable(): Promise<boolean>;
+  /** Sets the Discord Rich Presence, or clears it with null. */
+  discordPresence(presence: Presence | null): Promise<void>;
   minimize(): Promise<void>;
   restore(): Promise<void>;
   close(): Promise<void>;
@@ -112,6 +129,14 @@ const tauriPlatform: Platform = {
     }
   },
 
+  queryServers: (addresses) => invoke("query_servers", { addresses }),
+  queryPlayers: (address) => invoke("query_players", { address }),
+  openUrl: (url) => openUrl(url),
+  installedVersions: (gameDir) => invoke("installed_versions", { gameDir }),
+  appVersion: () => getVersion(),
+  discordAvailable: () => invoke("discord_available"),
+  discordPresence: (presence) => invoke("discord_presence", { presence }),
+
   minimize: () => getCurrentWindow().minimize(),
 
   close: () => getCurrentWindow().close(),
@@ -143,6 +168,29 @@ function mockStatus(): GameDirStatus {
     bots: true,
     supportsDisplay: false,
     ok: true,
+  };
+}
+
+const MOCK_MAPS = ["de_dust2", "de_inferno", "de_nuke", "cs_office", "de_train", "de_aztec"];
+
+function mockServer(address: string, i: number): ServerStatus {
+  if (i % 7 === 5) return { address, info: null, error: "Sin respuesta" };
+  const maxPlayers = i % 3 === 0 ? 20 : 32;
+  return {
+    address,
+    error: null,
+    info: {
+      name: i === 0 ? "PUBLICO III + RESPAWN · Nostalgia Gamers Argentina" : `^7[^5AR^7] Servidor de prueba ${i + 1}`,
+      map: MOCK_MAPS[i % MOCK_MAPS.length],
+      folder: "cstrike",
+      game: "Counter-Strike",
+      players: (i * 7 + 13) % (maxPlayers + 1),
+      maxPlayers,
+      bots: i % 4 === 1 ? 8 : 0,
+      password: i % 5 === 3,
+      vac: true,
+      pingMs: 20 + ((i * 37) % 180),
+    },
   };
 }
 
@@ -206,6 +254,34 @@ const mockPlatform: Platform = {
 
   // Valve sounds are not available outside the native app.
   gameSound: async () => null,
+
+  async queryServers(addresses) {
+    await new Promise((r) => setTimeout(r, 400));
+    return addresses.map((address, i) => mockServer(address, i));
+  },
+
+  async queryPlayers() {
+    await new Promise((r) => setTimeout(r, 300));
+    return ["matiGOD", "^1[ARG]^7 Pibe", "Gordo_AWP", "xX_deagle_Xx", "Player"].map((name, i) => ({
+      name,
+      score: 20 - i * 4,
+      durationSecs: 3600 - i * 700,
+    }));
+  },
+
+  openUrl: async (url) => {
+    window.open(url, "_blank");
+  },
+
+  installedVersions: async () => ({
+    engine: { build: 4045, commit: "7d87d65", branch: "master", platform: "apple-arm64" },
+    clientBuiltAt: Date.UTC(2026, 3, 29) / 1000,
+  }),
+  appVersion: async () => "0.2.0",
+  discordAvailable: async () => true,
+  discordPresence: async (presence) => {
+    console.info("[mock] Discord presence", presence);
+  },
 
   minimize: async () => {},
   restore: async () => {},
