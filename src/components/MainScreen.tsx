@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Alert, Button, Input, Label, ListBox, Select, Spinner, Tabs, TextField } from "@heroui/react";
 import type { Key } from "@heroui/react";
 import { ArrowRightToSquare, Copy, Gear, Persons, Play, Shuffle } from "@gravity-ui/icons";
+import { CrosshairEditor } from "./CrosshairEditor";
 import { MonitorPicker } from "./MonitorPicker";
 import { ServerBrowser } from "./ServerBrowser";
 import { SettingsDrawer } from "./SettingsDrawer";
@@ -27,7 +28,7 @@ interface Props {
   onChangeGameDir: () => void;
 }
 
-type Section = "play" | "servers";
+type Section = "play" | "servers" | "crosshair";
 
 const SERVER_INFO_REFRESH_MS = 30_000;
 
@@ -237,6 +238,10 @@ export function MainScreen({ settings, status, onChange, onChangeGameDir }: Prop
               Servidores
               <Tabs.Indicator />
             </Tabs.Tab>
+            <Tabs.Tab id="crosshair">
+              Mira
+              <Tabs.Indicator />
+            </Tabs.Tab>
           </Tabs.List>
         </Tabs.ListContainer>
 
@@ -370,6 +375,10 @@ export function MainScreen({ settings, status, onChange, onChangeGameDir }: Prop
             onChange={onChange}
             onConnect={(address) => launch({ kind: "connect", address })}
           />
+        </Tabs.Panel>
+
+        <Tabs.Panel id="crosshair" className="min-h-0 flex-1 px-6 pt-4 pb-4">
+          <CrosshairEditor gameDir={gameDir} running={running} />
         </Tabs.Panel>
       </Tabs>
 

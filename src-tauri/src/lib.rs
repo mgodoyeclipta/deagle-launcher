@@ -26,6 +26,8 @@ pub fn run() {
             commands::installed_versions,
             commands::discord_available,
             commands::discord_presence,
+            commands::read_crosshair,
+            commands::write_crosshair,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

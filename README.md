@@ -34,6 +34,12 @@ Listas:
 - **Historial**: los servidores del historial del juego.
 - **Favoritos**: los que marques con la estrella.
 
+### Editor de mira en vivo
+
+Pestaña **Mira**: vista previa en tiempo real de la mira personalizada de cs16-client (color, opacidad, largo, separación, grosor, borde, punto, forma de T, brillo aditivo y apertura al disparar, con un botón **Disparar** para ver cómo se abre) o de la mira clásica de CS, más el color del HUD. La geometría replica el código de dibujo de cs16-client (`cl_dll/ammo.cpp`) a 1080p.
+
+Al guardar escribe solo las cvars `xhair_*`, `cl_crosshair_*`, `cl_dynamiccrosshair` y `hud_color` en `cstrike/config.cfg` (con el juego cerrado, porque el juego lo reescribe al salir) y antes deja una copia en `cstrike/config.cfg.deagle.bak`.
+
 ### Actualizaciones
 
 Al abrir, compara el launcher, el motor Xash3D FWGS (por el build/commit que el motor escribe en sus `.cfg`) y cs16-client (por la fecha de compilación) contra sus releases oficiales en GitHub. Solo avisa y abre la página: no descarga ni reemplaza archivos del juego.

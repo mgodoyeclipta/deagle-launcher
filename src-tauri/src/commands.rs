@@ -102,3 +102,23 @@ pub async fn discord_presence(
     .await
     .map_err(|e| e.to_string())?
 }
+
+/// Current crosshair and HUD colour cvars from config.cfg.
+#[tauri::command]
+pub fn read_crosshair(game_dir: String) -> std::collections::HashMap<String, String> {
+    game::read_cvars(Path::new(&game_dir), game::CROSSHAIR_CVARS)
+}
+
+/// Saves crosshair/HUD cvars into config.cfg. Refused while the game runs,
+/// because the game rewrites config.cfg when it exits.
+#[tauri::command]
+pub fn write_crosshair(
+    state: State<'_, GameState>,
+    game_dir: String,
+    values: std::collections::HashMap<String, String>,
+) -> Result<(), String> {
+    if state.is_running() {
+        return Err("Cerrá el juego para guardar la mira: el juego reescribe su configuración al salir.".into());
+    }
+    game::write_crosshair(Path::new(&game_dir), &values)
+}

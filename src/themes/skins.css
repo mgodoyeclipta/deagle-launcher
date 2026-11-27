@@ -141,6 +141,43 @@
 }
 
 /* ------------------------------------------------------------------------ */
+/* Crosshair editor (modern defaults)                                       */
+/* ------------------------------------------------------------------------ */
+
+.xhair-slider input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.color-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1px solid rgb(0 0 0 / 0.35);
+  flex-shrink: 0;
+}
+
+.color-swatch[data-selected] {
+  outline: 2px solid var(--foreground);
+  outline-offset: 1px;
+}
+
+.color-input {
+  width: 28px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.xhair-hud {
+  font-family: "Arial Black", Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+/* ------------------------------------------------------------------------ */
 /* Classic skin                                                             */
 /* ------------------------------------------------------------------------ */
 
@@ -624,4 +661,50 @@
   height: 6px;
   background: var(--c-label);
   outline: 1px solid var(--c-dark);
+}
+
+/* Crosshair editor -------------------------------------------------------- */
+
+[data-skin="classic"] .xhair-slider input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 14px;
+  background: transparent;
+}
+
+[data-skin="classic"] .xhair-slider input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  background: var(--c-bg-dark);
+  border: 1px solid;
+  border-color: var(--c-dark) var(--c-light) var(--c-light) var(--c-dark);
+}
+
+[data-skin="classic"] .xhair-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 8px;
+  height: 14px;
+  margin-top: -6px;
+  background: var(--c-bg);
+  border: 1px solid;
+  border-color: var(--c-light) var(--c-dark) var(--c-dark) var(--c-light);
+}
+
+[data-skin="classic"] .xhair-slider:focus-within .text-muted {
+  color: var(--c-label);
+}
+
+[data-skin="classic"] .color-swatch {
+  width: 16px;
+  height: 16px;
+  border: 1px solid;
+  border-color: var(--c-dark) var(--c-light) var(--c-light) var(--c-dark);
+}
+
+[data-skin="classic"] .color-swatch[data-selected] {
+  outline: 1px solid var(--c-label);
+  outline-offset: 1px;
+}
+
+[data-skin="classic"] .xhair-preview {
+  padding: 0;
 }

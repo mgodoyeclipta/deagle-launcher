@@ -52,6 +52,10 @@ export interface Platform {
   discordAvailable(): Promise<boolean>;
   /** Sets the Discord Rich Presence, or clears it with null. */
   discordPresence(presence: Presence | null): Promise<void>;
+  /** Crosshair and HUD colour cvars from config.cfg. */
+  readCrosshair(gameDir: string): Promise<Record<string, string>>;
+  /** Saves them; fails while the game is running. */
+  writeCrosshair(gameDir: string, values: Record<string, string>): Promise<void>;
   minimize(): Promise<void>;
   restore(): Promise<void>;
   close(): Promise<void>;
@@ -136,6 +140,8 @@ const tauriPlatform: Platform = {
   appVersion: () => getVersion(),
   discordAvailable: () => invoke("discord_available"),
   discordPresence: (presence) => invoke("discord_presence", { presence }),
+  readCrosshair: (gameDir) => invoke("read_crosshair", { gameDir }),
+  writeCrosshair: (gameDir, values) => invoke("write_crosshair", { gameDir, values }),
 
   minimize: () => getCurrentWindow().minimize(),
 
@@ -156,6 +162,25 @@ const tauriPlatform: Platform = {
 const MOCK_DIR = "/Users/demo/Downloads/xash3d-fwgs-apple-arm64";
 const mockListeners = new Set<(e: GameExited) => void>();
 let mockRunning = false;
+const mockCrosshair: Record<string, string> = {
+  xhair_enable: "1",
+  xhair_color: "0 255 0 255",
+  xhair_size: "4",
+  xhair_gap: "-2",
+  xhair_thick: "0",
+  xhair_pad: "0",
+  xhair_dot: "0",
+  xhair_t: "0",
+  xhair_additive: "0",
+  xhair_dynamic_scale: "0",
+  xhair_gap_useweaponvalue: "0",
+  xhair_dynamic_move: "1",
+  cl_crosshair_color: "50 50 250",
+  cl_crosshair_size: "small",
+  cl_crosshair_translucent: "0",
+  cl_dynamiccrosshair: "1",
+  hud_color: "255 160 0",
+};
 
 function mockStatus(): GameDirStatus {
   return {
@@ -281,6 +306,12 @@ const mockPlatform: Platform = {
   discordAvailable: async () => true,
   discordPresence: async (presence) => {
     console.info("[mock] Discord presence", presence);
+  },
+
+  readCrosshair: async () => ({ ...mockCrosshair }),
+  writeCrosshair: async (_gameDir, values) => {
+    if (mockRunning) throw "Cerrá el juego para guardar la mira: el juego reescribe su configuración al salir.";
+    Object.assign(mockCrosshair, values);
   },
 
   minimize: async () => {},

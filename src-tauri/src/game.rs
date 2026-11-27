@@ -5,6 +5,7 @@
 //! inspect and lightly maintain that folder.
 
 use serde::Serialize;
+use std::collections::HashMap;
 use std::fs;
 use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
@@ -111,24 +112,73 @@ fn file_contains(path: &Path, needle: &[u8]) -> bool {
 }
 
 // ---------------------------------------------------------------------------
-// Player name (cstrike/config.cfg)
+// Cvars in cstrike/config.cfg (player name, crosshair, HUD colour)
 // ---------------------------------------------------------------------------
 
 fn config_path(dir: &Path) -> PathBuf {
     dir.join("cstrike/config.cfg")
 }
 
-/// Reads the `name "..."` cvar the game saved in `config.cfg`.
-pub fn read_name(dir: &Path) -> Option<String> {
-    let text = fs::read_to_string(config_path(dir)).ok()?;
-    text.lines().find_map(parse_name_line)
-}
-
-fn parse_name_line(line: &str) -> Option<String> {
-    let rest = line.trim_start().strip_prefix("name")?;
+/// Value of `name "value"` if this config line sets the cvar `name`.
+fn parse_cvar_line(line: &str, name: &str) -> Option<String> {
+    let rest = line.trim_start().strip_prefix(name)?;
+    if !rest.starts_with(char::is_whitespace) {
+        return None; // e.g. `name_tag` when looking for `name`
+    }
     let rest = rest.trim_start().strip_prefix('"')?;
     let end = rest.find('"')?;
     Some(rest[..end].to_string())
+}
+
+/// Reads the given cvars from `config.cfg`; missing ones are left out.
+pub fn read_cvars(dir: &Path, names: &[&str]) -> HashMap<String, String> {
+    let text = fs::read_to_string(config_path(dir)).unwrap_or_default();
+    let mut out = HashMap::new();
+    for line in text.lines() {
+        for name in names {
+            if !out.contains_key(*name) {
+                if let Some(value) = parse_cvar_line(line, name) {
+                    out.insert(name.to_string(), value);
+                }
+            }
+        }
+    }
+    out
+}
+
+/// Sets cvars in `config.cfg`, replacing their existing lines and appending
+/// new ones. The game execs this file at startup and rewrites it on exit, so
+/// only call this while the game is not running. Values must already be safe.
+pub fn write_cvars(dir: &Path, values: &[(&str, String)]) -> Result<(), String> {
+    let path = config_path(dir);
+    let text = fs::read_to_string(&path).unwrap_or_default();
+    if path.is_file() {
+        // Safety net for every edit the launcher makes to the user's config.
+        fs::copy(&path, dir.join("cstrike/config.cfg.deagle.bak")).map_err(|e| e.to_string())?;
+    }
+    let mut pending: Vec<&(&str, String)> = values.iter().collect();
+
+    let mut lines: Vec<String> = text
+        .lines()
+        .map(|line| {
+            if let Some(i) = pending.iter().position(|(name, _)| parse_cvar_line(line, name).is_some()) {
+                let (name, value) = pending.remove(i);
+                format!("{name} \"{value}\"")
+            } else {
+                line.to_string()
+            }
+        })
+        .collect();
+    lines.extend(pending.iter().map(|(name, value)| format!("{name} \"{value}\"")));
+
+    let mut out = lines.join("\n");
+    out.push('\n');
+    fs::write(&path, out).map_err(|e| e.to_string())
+}
+
+/// Reads the `name "..."` cvar the game saved in `config.cfg`.
+pub fn read_name(dir: &Path) -> Option<String> {
+    read_cvars(dir, &["name"]).remove("name")
 }
 
 /// Strips characters that would break out of the quoted cvar value or
@@ -142,36 +192,61 @@ pub fn sanitize_name(name: &str) -> String {
         .to_string()
 }
 
-/// Writes the player name into `config.cfg` (the game execs it at startup).
-/// Only call this while the game is not running: it rewrites the file on exit.
+/// Writes the player name into `config.cfg`.
 pub fn write_name(dir: &Path, name: &str) -> Result<(), String> {
     let name = sanitize_name(name);
     if name.is_empty() {
         return Ok(());
     }
-    let path = config_path(dir);
-    let text = fs::read_to_string(&path).unwrap_or_default();
-    let new_line = format!("name \"{name}\"");
+    write_cvars(dir, &[("name", name)])
+}
 
-    let mut replaced = false;
-    let mut lines: Vec<String> = text
-        .lines()
-        .map(|line| {
-            if !replaced && parse_name_line(line).is_some() {
-                replaced = true;
-                new_line.clone()
-            } else {
-                line.to_string()
-            }
-        })
-        .collect();
-    if !replaced {
-        lines.push(new_line);
+/// Crosshair (cs16-client enhanced and classic) and HUD colour cvars the
+/// launcher's crosshair editor may read and write. Nothing else is touched.
+pub const CROSSHAIR_CVARS: &[&str] = &[
+    "xhair_enable",
+    "xhair_color",
+    "xhair_size",
+    "xhair_gap",
+    "xhair_thick",
+    "xhair_pad",
+    "xhair_dot",
+    "xhair_t",
+    "xhair_additive",
+    "xhair_dynamic_scale",
+    "xhair_gap_useweaponvalue",
+    "xhair_dynamic_move",
+    "cl_crosshair_color",
+    "cl_crosshair_size",
+    "cl_crosshair_translucent",
+    "cl_dynamiccrosshair",
+    "hud_color",
+];
+
+/// Numbers (`-2`, `0.5`, `0 255 0 255`) or a single lowercase word
+/// (`auto`, `small`): nothing that could close the quotes or chain commands.
+pub fn is_safe_cvar_value(value: &str) -> bool {
+    let numeric = value.chars().all(|c| c.is_ascii_digit() || matches!(c, ' ' | '.' | '-'));
+    let word = value.chars().all(|c| c.is_ascii_lowercase());
+    !value.is_empty() && value.len() <= 32 && (numeric || word)
+}
+
+/// Validates and writes crosshair/HUD cvars.
+pub fn write_crosshair(dir: &Path, values: &HashMap<String, String>) -> Result<(), String> {
+    let mut checked: Vec<(&str, String)> = Vec::new();
+    for (name, value) in values {
+        let known = CROSSHAIR_CVARS
+            .iter()
+            .find(|n| *n == name)
+            .ok_or_else(|| format!("Variable no permitida: {name}"))?;
+        let value = value.trim();
+        if !is_safe_cvar_value(value) {
+            return Err(format!("Valor inválido para {name}: {value}"));
+        }
+        checked.push((known, value.to_string()));
     }
-
-    let mut out = lines.join("\n");
-    out.push('\n');
-    fs::write(&path, out).map_err(|e| e.to_string())
+    checked.sort_by_key(|(name, _)| *name); // stable output for appended lines
+    write_cvars(dir, &checked)
 }
 
 // ---------------------------------------------------------------------------
@@ -324,11 +399,54 @@ mod tests {
     use super::*;
 
     #[test]
-    fn parses_name_line() {
-        assert_eq!(parse_name_line("name \"matiGOD\""), Some("matiGOD".into()));
-        assert_eq!(parse_name_line("  name   \"a b\""), Some("a b".into()));
-        assert_eq!(parse_name_line("name_tag \"x\""), None);
-        assert_eq!(parse_name_line("hud_color \"255 0 0\""), None);
+    fn parses_cvar_lines() {
+        assert_eq!(parse_cvar_line("name \"matiGOD\"", "name"), Some("matiGOD".into()));
+        assert_eq!(parse_cvar_line("  name   \"a b\"", "name"), Some("a b".into()));
+        assert_eq!(parse_cvar_line("name_tag \"x\"", "name"), None);
+        assert_eq!(parse_cvar_line("hud_color \"255 0 0\"", "name"), None);
+        assert_eq!(parse_cvar_line("xhair_gap \"-2\"", "xhair_gap"), Some("-2".into()));
+        assert_eq!(parse_cvar_line("xhair_gap_useweaponvalue \"0\"", "xhair_gap"), None);
+    }
+
+    #[test]
+    fn validates_cvar_values() {
+        assert!(is_safe_cvar_value("0 255 0 255"));
+        assert!(is_safe_cvar_value("-2"));
+        assert!(is_safe_cvar_value("0.5"));
+        assert!(is_safe_cvar_value("small"));
+        assert!(!is_safe_cvar_value("1\"; quit"));
+        assert!(!is_safe_cvar_value("Small"));
+        assert!(!is_safe_cvar_value(""));
+    }
+
+    #[test]
+    fn writes_crosshair_cvars_safely() {
+        let dir = std::env::temp_dir().join(format!("cs16l-xhair-{}", std::process::id()));
+        fs::create_dir_all(dir.join("cstrike")).unwrap();
+        fs::write(config_path(&dir), "bind \"w\" \"+forward\"\nxhair_gap \"-2\"\nxhair_gap_useweaponvalue \"0\"\n").unwrap();
+
+        let mut values = HashMap::new();
+        values.insert("xhair_gap".to_string(), "3".to_string());
+        values.insert("xhair_color".to_string(), "255 0 0 200".to_string());
+        write_crosshair(&dir, &values).unwrap();
+        let text = fs::read_to_string(config_path(&dir)).unwrap();
+        assert_eq!(
+            text,
+            "bind \"w\" \"+forward\"\nxhair_gap \"3\"\nxhair_gap_useweaponvalue \"0\"\nxhair_color \"255 0 0 200\"\n"
+        );
+        let backup = fs::read_to_string(dir.join("cstrike/config.cfg.deagle.bak")).unwrap();
+        assert!(backup.contains("xhair_gap \"-2\""), "backup keeps the previous config");
+        let read = read_cvars(&dir, CROSSHAIR_CVARS);
+        assert_eq!(read.get("xhair_gap").map(String::as_str), Some("3"));
+
+        let mut bad = HashMap::new();
+        bad.insert("rcon_password".to_string(), "1".to_string());
+        assert!(write_crosshair(&dir, &bad).is_err());
+        let mut injection = HashMap::new();
+        injection.insert("xhair_gap".to_string(), "1\"; quit".to_string());
+        assert!(write_crosshair(&dir, &injection).is_err());
+
+        fs::remove_dir_all(&dir).unwrap();
     }
 
     #[test]
