@@ -234,6 +234,26 @@ function mockStatus(): GameDirStatus {
 
 const MOCK_MAPS = ["de_dust2", "de_inferno", "de_nuke", "cs_office", "de_train", "de_aztec"];
 
+/**
+ * Made-up server names for the browser preview. Deliberately fictional: the
+ * player counts and pings here are fake, so they must not be shown next to
+ * real communities' names (e.g. in README screenshots).
+ */
+const MOCK_SERVER_NAMES = [
+  "^1[AR]^7 Público Clásico · Dust2 24/7",
+  "[AR] Automix 5vs5 · Liga Ejemplo",
+  "[AR] Deathmatch + FFA · 1000 FPS",
+  "[AR] Fruta · fy_pool_day only",
+  "[AR] Zombie Plague · Levels",
+  "[AR] Surf + Respawn",
+  "[AR] KreedZ 100aa · Bhop",
+  "[AR] Mata al Traidor (TTT)",
+  "[AR] Inferno Clásico",
+  "[AR] Capturá la Bandera",
+  "[AR] Gungame Teamplay",
+  "[AR] Público II · Mapas viejos",
+];
+
 function mockServer(address: string, i: number): ServerStatus {
   if (i % 7 === 5) return { address, info: null, error: "Sin respuesta" };
   const maxPlayers = i % 3 === 0 ? 20 : 32;
@@ -241,7 +261,7 @@ function mockServer(address: string, i: number): ServerStatus {
     address,
     error: null,
     info: {
-      name: i === 0 ? "PUBLICO III + RESPAWN · Nostalgia Gamers Argentina" : `^7[^5AR^7] Servidor de prueba ${i + 1}`,
+      name: MOCK_SERVER_NAMES[i % MOCK_SERVER_NAMES.length] + (i >= MOCK_SERVER_NAMES.length ? ` #${Math.floor(i / MOCK_SERVER_NAMES.length) + 1}` : ""),
       map: MOCK_MAPS[i % MOCK_MAPS.length],
       folder: "cstrike",
       game: "Counter-Strike",
@@ -379,7 +399,8 @@ const mockPlatform: Platform = {
     clientBuiltAt: Date.UTC(2026, 3, 29) / 1000,
   }),
   appVersion: async () => packageJson.version,
-  discordAvailable: async () => true,
+  // Like real builds without a Discord application ID; add ?discord to preview the toggle.
+  discordAvailable: async () => new URLSearchParams(location.search).has("discord"),
   discordPresence: async (presence) => {
     console.info("[mock] Discord presence", presence);
   },

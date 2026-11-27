@@ -14,6 +14,16 @@
 
 Instalás, elegís tu nombre y jugás: el launcher prepara el motor por vos, usa tu Counter-Strike de Steam, te muestra los servidores argentinos en vivo y te deja armar tu mira antes de entrar.
 
+<table>
+  <tr>
+    <td align="center"><img src="docs/screenshots/jugar.png" alt="Pestaña Jugar" width="260" /><br /><sub>Jugar</sub></td>
+    <td align="center"><img src="docs/screenshots/servidores.png" alt="Explorador de servidores" width="260" /><br /><sub>Servidores en vivo</sub></td>
+    <td align="center"><img src="docs/screenshots/mira.png" alt="Editor de mira" width="260" /><br /><sub>Editor de mira</sub></td>
+  </tr>
+</table>
+
+<sub>Capturas con datos de ejemplo: los nombres, IPs y jugadores de los servidores son ficticios.</sub>
+
 - [Para jugadores](#para-jugadores)
 - [Para desarrolladores](#para-desarrolladores)
 - [Aviso legal](#aviso-legal) · [Licencia](#licencia)
@@ -49,6 +59,8 @@ shasum -a 256 ~/Downloads/Deagle.Launcher_*_aarch64.dmg
 
 ## La primera vez
 
+<img src="docs/screenshots/primera-vez.png" alt="Asistente de primera vez" width="280" align="right" />
+
 El launcher te guía en dos pasos:
 
 1. **Archivos del juego.** Busca tu Counter-Strike en Steam y lo usa directamente, sin copiar nada.
@@ -57,6 +69,8 @@ El launcher te guía en dos pasos:
 2. **Motor y cliente.** Tocá **Instalar automáticamente (≈21 MB)**. Baja Xash3D FWGS y cs16-client de sus páginas oficiales, verifica que los archivos no estén alterados y los instala.
 
 Listo: **Ir al launcher**.
+
+<br clear="right" />
 
 ## Cómo se usa
 
@@ -80,7 +94,12 @@ Mientras jugás el launcher se minimiza y vuelve cuando cerrás el juego.
 Armá tu mira con **vista previa en vivo**: color, opacidad, largo, separación, grosor, borde, punto, forma de T y cuánto se abre al disparar (mantené **Disparar** para verlo). También podés editar la mira clásica de CS y el **color del HUD**. **Guardar en el juego** la aplica la próxima vez que abras el juego.
 
 ### Ajustes (⚙)
+
+<img src="docs/screenshots/ajustes.png" alt="Ajustes" width="280" align="right" />
+
 Tema **Clásico** (estilo Steam 2004) o **Moderno**, modo de pantalla, resolución, **tamaño del HUD**, cantidad de bots, sonidos y volumen, minimizar al jugar, actualizaciones y **Créditos**.
+
+<br clear="right" />
 
 ## Problemas comunes
 
@@ -147,12 +166,14 @@ Con `npm run dev` y `http://localhost:1420`, la interfaz usa una **simulación**
 | `?crash` | que el juego se cierra con error |
 | `?steam=none` / `?steam=nocs` | sin Steam / Steam sin Counter-Strike |
 | `?installfail` | que falla la instalación automática |
+| `?discord` | que hay una aplicación de Discord configurada (muestra su interruptor) |
 
-Para empezar de cero en el navegador: `localStorage.clear()` en la consola.
+Para empezar de cero en el navegador: `localStorage.clear()` en la consola. Los servidores de la simulación tienen nombres y jugadores inventados: no los muestres junto a nombres o IPs de servidores reales (por ejemplo en capturas).
 
 ## Estructura
 
 ```
+docs/screenshots/            capturas del README (modo navegador, datos ficticios)
 src/                         Interfaz (React)
   App.tsx                    fases: cargando → configuración → principal; detección de Steam e instalación
   components/
