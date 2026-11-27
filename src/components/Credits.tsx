@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
-import { Button, Modal } from "@heroui/react";
+import { Alert, Button, Modal } from "@heroui/react";
 import { ArrowUpRightFromSquare, Briefcase } from "@gravity-ui/icons";
 import logo from "../assets/deagle-logo.png";
 import { platform } from "../lib/platform";
+import { sfx } from "../lib/sfx";
+
+/** Clicks on the logo that reveal the hidden factory reset. */
+const SECRET_CLICKS = 5;
 
 const AUTHOR = {
   name: "Matias Godoy",
@@ -28,6 +32,32 @@ interface Props {
 
 export function Credits({ isOpen, onOpenChange }: Props) {
   const [version, setVersion] = useState("");
+  const [logoClicks, setLogoClicks] = useState(0);
+  const [confirming, setConfirming] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [resetError, setResetError] = useState<string | null>(null);
+  const resetUnlocked = logoClicks >= SECRET_CLICKS;
+
+  // Hide it again whenever the dialog closes.
+  useEffect(() => {
+    if (!isOpen) {
+      setLogoClicks(0);
+      setConfirming(false);
+      setResetError(null);
+    }
+  }, [isOpen]);
+
+  async function factoryReset() {
+    setResetting(true);
+    setResetError(null);
+    try {
+      await platform.factoryReset();
+    } catch (e) {
+      setResetError(String(e));
+      sfx.play("deny");
+      setResetting(false);
+    }
+  }
 
   useEffect(() => {
     platform.appVersion().then(setVersion).catch(() => {});
@@ -42,7 +72,13 @@ export function Credits({ isOpen, onOpenChange }: Props) {
           <Modal.Dialog className="credits sm:max-w-[380px]">
             <Modal.CloseTrigger />
             <Modal.Header>
-              <img src={logo} alt="" className="credits__logo" draggable={false} />
+              <img
+                src={logo}
+                alt=""
+                className="credits__logo"
+                draggable={false}
+                onClick={() => setLogoClicks((n) => n + 1)}
+              />
               <Modal.Heading>Deagle Launcher{version && ` v${version}`}</Modal.Heading>
             </Modal.Header>
             <Modal.Body className="flex flex-col gap-4">
@@ -79,6 +115,42 @@ export function Credits({ isOpen, onOpenChange }: Props) {
                   ))}
                 </ul>
               </div>
+
+              {resetUnlocked && !confirming && (
+                <Button size="sm" variant="danger-soft" className="self-start" onPress={() => setConfirming(true)}>
+                  Restablecer Deagle Launcher…
+                </Button>
+              )}
+
+              {confirming && (
+                <Alert status="danger" className="factory-reset">
+                  <Alert.Indicator />
+                  <Alert.Content className="flex flex-col gap-2">
+                    <Alert.Title>¿Restablecer de fábrica?</Alert.Title>
+                    <Alert.Description>
+                      Se borra todo lo del launcher y vuelve como recién instalado:
+                    </Alert.Description>
+                    <ul className="list-disc pl-4 text-xs">
+                      <li>tus ajustes (carpeta, tema, favoritos, monitor, sonidos…)</li>
+                      <li>la instalación oficial del motor y cs16-client</li>
+                      <li>los registros del launcher</li>
+                    </ul>
+                    <p className="text-xs">
+                      No se toca: Steam, tu Counter-Strike de Steam ni tus carpetas propias de Xash3D (con sus
+                      configs y miras).
+                    </p>
+                    {resetError && <p className="text-xs font-semibold">{resetError}</p>}
+                    <div className="flex gap-2 pt-1">
+                      <Button size="sm" variant="danger" isPending={resetting} onPress={factoryReset}>
+                        Borrar todo y reiniciar
+                      </Button>
+                      <Button size="sm" variant="tertiary" isDisabled={resetting} onPress={() => setConfirming(false)}>
+                        Cancelar
+                      </Button>
+                    </div>
+                  </Alert.Content>
+                </Alert>
+              )}
 
               <p className="text-[11px] leading-snug text-muted">
                 Proyecto independiente y gratuito, sin afiliación con Valve Corporation ni Magnum Research.

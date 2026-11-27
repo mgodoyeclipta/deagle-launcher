@@ -5,7 +5,7 @@ import { SetupScreen } from "./components/SetupScreen";
 import { TitleBar } from "./components/TitleBar";
 import { platform } from "./lib/platform";
 import { installClickSounds, sfx } from "./lib/sfx";
-import type { GameDirStatus, Settings, SteamStatus } from "./lib/types";
+import type { GameDirStatus, InstallProgress, OfficialInstall, Settings, SteamStatus } from "./lib/types";
 
 type Phase = "loading" | "setup" | "main";
 
@@ -27,11 +27,19 @@ function Screens() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [steam, setSteam] = useState<SteamStatus | null>(null);
+  const [official, setOfficial] = useState<OfficialInstall | null>(null);
+  const [installing, setInstalling] = useState(false);
+  const [progress, setProgress] = useState<InstallProgress | null>(null);
 
   useEffect(() => {
     (async () => {
-      const [loaded, steamStatus] = await Promise.all([platform.loadSettings(), platform.detectSteam()]);
+      const [loaded, steamStatus, officialInstall] = await Promise.all([
+        platform.loadSettings(),
+        platform.detectSteam(),
+        platform.officialInstall(),
+      ]);
       setSteam(steamStatus);
+      setOfficial(officialInstall);
       setSettings(loaded);
       if (loaded.gameDir) {
         const s = await platform.checkGameDir(loaded.gameDir, loaded.dataDir);
@@ -64,8 +72,13 @@ function Screens() {
 
   useEffect(() => {
     if (!settings) return;
-    sfx.configure({ gameDir: settings.gameDir, enabled: settings.sounds, volume: settings.volume });
-  }, [settings?.gameDir, settings?.sounds, settings?.volume]);
+    sfx.configure({
+      gameDir: settings.gameDir,
+      dataDir: settings.dataDir,
+      enabled: settings.sounds,
+      volume: settings.volume,
+    });
+  }, [settings?.gameDir, settings?.dataDir, settings?.sounds, settings?.volume]);
 
   const update = useCallback((patch: Partial<Settings>) => {
     setSettings((prev) => {
@@ -92,6 +105,42 @@ function Screens() {
       setError(String(e));
     } finally {
       setBusy(false);
+    }
+  }
+
+  /** The data folder a fresh official install should read: what's set, or Steam's. */
+  const dataDirFor = () => settings?.dataDir ?? steam?.dataDir ?? null;
+
+  async function installOfficial() {
+    setError(null);
+    // Already installed: just switch to it.
+    if (official) {
+      update({ gameDir: official.gameDir, dataDir: dataDirFor() });
+      return;
+    }
+    setInstalling(true);
+    setProgress(null);
+    const off = await platform.onInstallProgress(setProgress);
+    try {
+      const result = await platform.installOfficial();
+      setOfficial(result);
+      update({ gameDir: result.gameDir, dataDir: dataDirFor() });
+    } catch (e) {
+      setError(`No se pudo instalar: ${String(e)}`);
+    } finally {
+      off();
+      setInstalling(false);
+    }
+  }
+
+  async function pickDataDir() {
+    setError(null);
+    const dir = await platform.pickDataDir();
+    if (!dir) return;
+    if (await platform.checkDataDir(dir)) {
+      update({ dataDir: dir });
+    } else {
+      setError("Esa carpeta no tiene valve/ y cstrike/. Elegí la carpeta de Half-Life que los contiene.");
     }
   }
 
@@ -122,10 +171,15 @@ function Screens() {
         gameDir={settings.gameDir}
         dataDir={settings.dataDir}
         steam={steam}
+        official={official}
         status={status}
         busy={busy}
+        installing={installing}
+        progress={progress}
         error={error}
+        onInstall={installOfficial}
         onPick={pickDir}
+        onPickData={pickDataDir}
         onFix={fixDir}
         onUseSteam={() => steam?.dataDir && update({ dataDir: steam.dataDir })}
         onContinue={() => setPhase("main")}
@@ -134,6 +188,12 @@ function Screens() {
   }
 
   return (
-    <MainScreen settings={settings} status={status} steam={steam} onChange={update} onChangeGameDir={pickDir} />
+    <MainScreen
+      settings={settings}
+      status={status}
+      steam={steam}
+      onChange={update}
+      onChangeGameDir={() => setPhase("setup")}
+    />
   );
 }

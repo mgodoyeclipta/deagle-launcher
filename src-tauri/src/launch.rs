@@ -47,6 +47,10 @@ pub struct LaunchOptions {
     /// Read-only folder with `valve/` and `cstrike/` (Steam's copy), via `-rodir`.
     #[serde(default)]
     pub data_dir: Option<String>,
+    /// HUD scale written as `hud_scale` before launching (2 on Retina screens,
+    /// where the engine renders at physical resolution and the HUD looks tiny).
+    #[serde(default)]
+    pub hud_scale: Option<f32>,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -160,6 +164,14 @@ fn spawn(app: &AppHandle, opts: LaunchOptions) -> Result<(), String> {
         game::write_name(&dir, name)?;
     }
 
+    if let Some(scale) = opts.hud_scale {
+        if !(0.0..=4.0).contains(&scale) {
+            return Err(format!("Escala de HUD inválida: {scale}"));
+        }
+        game::seed_config(&dir, data_dir)?;
+        game::write_cvars(&dir, &[("hud_scale", format!("{scale}"))])?;
+    }
+
     let args = build_args(&opts, status.supports_display)?;
 
     // Output goes to a file, not a pipe: if the launcher is closed while the
@@ -227,6 +239,7 @@ mod tests {
             extra_args: None,
             player_name: None,
             data_dir: None,
+            hud_scale: None,
         }
     }
 

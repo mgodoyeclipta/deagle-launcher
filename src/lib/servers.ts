@@ -34,17 +34,24 @@ function curatedFrom(data: unknown): CuratedServer[] | null {
   );
 }
 
+/**
+ * The list bundled with the app plus whatever is published on GitHub (so new
+ * servers show up without an update). Names from GitHub win if both have one.
+ */
 export async function argentinaServers(): Promise<CuratedServer[]> {
+  const merged = new Map<string, CuratedServer>();
+  for (const s of curatedFrom(bundledArgentina) ?? []) merged.set(s.address, s);
   try {
     const res = await fetch(ARGENTINA_URL, { cache: "no-store" });
     if (res.ok) {
-      const list = curatedFrom(await res.json());
-      if (list?.length) return list;
+      for (const s of curatedFrom(await res.json()) ?? []) {
+        merged.set(s.address, { ...merged.get(s.address), ...s });
+      }
     }
   } catch {
-    /* offline or not published yet: use the copy bundled with the app */
+    /* offline: the bundled list is enough */
   }
-  return curatedFrom(bundledArgentina) ?? [];
+  return [...merged.values()];
 }
 
 /** Parses the Xash list: comment lines start with `#`, entries are `<ip|gs> <address>`. */
@@ -67,6 +74,9 @@ export async function internetServers(): Promise<string[]> {
 export function cleanName(name: string): string {
   return name.replace(/\^\d/g, "").replace(/\s+/g, " ").trim();
 }
+
+/** GameTracker's list of Counter-Strike 1.6 servers in Argentina (opened in the browser). */
+export const GAMETRACKER_ARGENTINA = "https://www.gametracker.com/search/cs/AR/";
 
 /** Public GameTracker page for a server (just a link: their data is not scraped). */
 export function gametrackerUrl(address: string): string {

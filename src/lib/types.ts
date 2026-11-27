@@ -10,6 +10,27 @@ export interface SteamStatus {
   dataDir: string | null;
 }
 
+export interface InstallManifest {
+  engineCommit: string;
+  enginePublishedAt: string;
+  clientPublishedAt: string;
+  /** Unix seconds. */
+  installedAt: number;
+}
+
+/** Engine + cs16-client installed and managed by the launcher. */
+export interface OfficialInstall {
+  gameDir: string;
+  manifest: InstallManifest;
+}
+
+export interface InstallProgress {
+  step: "engine" | "client" | "extract" | "done";
+  label: string;
+  downloaded: number;
+  total: number;
+}
+
 export interface GameDirStatus {
   engine: boolean;
   executable: boolean;
@@ -38,6 +59,8 @@ export interface LaunchOptions {
   playerName?: string;
   /** Read-only game data folder (Steam's), passed to the engine as -rodir. */
   dataDir?: string;
+  /** Written as the engine's hud_scale before launching. */
+  hudScale?: number;
 }
 
 export interface ServerInfo {
@@ -103,6 +126,8 @@ export interface MonitorInfo {
   width: number;
   height: number;
   primary: boolean;
+  /** Backing scale factor: 2 on Retina screens. */
+  scaleFactor: number;
 }
 
 /** "native" = the monitor's own resolution. */
@@ -127,6 +152,8 @@ export interface Settings {
   lastServer: string | null;
   /** Server addresses starred in the server browser. */
   favorites: string[];
+  /** "auto" = the screen's scale factor (2 on Retina), or a fixed HUD scale. */
+  hudScale: "auto" | number;
   /** Show the current game on the user's Discord profile. */
   discordPresence: boolean;
 }
@@ -145,5 +172,6 @@ export const DEFAULT_SETTINGS: Settings = {
   volume: 60,
   lastServer: null,
   favorites: [],
+  hudScale: "auto",
   discordPresence: true,
 };

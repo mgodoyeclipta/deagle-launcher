@@ -3,7 +3,7 @@
 use crate::game::{self, GameDirStatus};
 use crate::launch::{self, GameState, LaunchOptions};
 use std::path::Path;
-use tauri::{AppHandle, State};
+use tauri::{AppHandle, Manager, State};
 
 #[tauri::command]
 pub fn check_game_dir(game_dir: String, data_dir: Option<String>) -> GameDirStatus {
@@ -44,8 +44,8 @@ pub fn is_game_running(state: State<'_, GameState>) -> bool {
 
 /// Raw bytes of one of the launcher's UI sounds (see `game::sound_file`).
 #[tauri::command]
-pub fn game_sound(game_dir: String, name: String) -> Result<tauri::ipc::Response, String> {
-    game::read_sound(Path::new(&game_dir), &name).map(tauri::ipc::Response::new)
+pub fn game_sound(game_dir: String, data_dir: Option<String>, name: String) -> Result<tauri::ipc::Response, String> {
+    game::read_sound(Path::new(&game_dir), data_dir.as_deref().map(Path::new), &name).map(tauri::ipc::Response::new)
 }
 
 /// Live A2S info for each address (name, map, players, ping), in input order.
@@ -131,4 +131,49 @@ pub fn write_crosshair(
 #[tauri::command]
 pub fn detect_steam() -> crate::steam::SteamStatus {
     crate::steam::detect()
+}
+
+/// The launcher-managed official install, if any.
+#[tauri::command]
+pub fn official_install(app: AppHandle) -> Option<crate::installer::OfficialInstall> {
+    crate::installer::official(&app)
+}
+
+/// Downloads (with SHA-256 check) and installs the official engine and
+/// cs16-client. Progress arrives as `install-progress` events.
+#[tauri::command]
+pub async fn install_official(app: AppHandle) -> Result<crate::installer::OfficialInstall, String> {
+    if app.state::<GameState>().is_running() {
+        return Err("Cerrá el juego antes de instalar o actualizar".into());
+    }
+    crate::installer::install_official(&app).await
+}
+
+/// Does this folder hold the game data (valve/ and cstrike/)?
+#[tauri::command]
+pub fn check_data_dir(path: String) -> bool {
+    crate::steam::is_data_dir(Path::new(&path))
+}
+
+/// Factory reset: deletes the launcher's own data (official installs,
+/// saved settings file, logs). Never touches Steam or the user's own
+/// Xash3D folders. Refused while the game runs.
+#[tauri::command]
+pub fn factory_reset(app: AppHandle) -> Result<(), String> {
+    if app.state::<GameState>().is_running() {
+        return Err("Cerrá el juego antes de restablecer el launcher".into());
+    }
+    let data = app.path().app_data_dir().map_err(|e| e.to_string())?;
+    let logs = app.path().app_log_dir().map_err(|e| e.to_string())?;
+    let identifier = app.config().identifier.clone();
+    for dir in [&data, &logs] {
+        // Only ever delete folders named after this app.
+        if identifier.is_empty() || dir.file_name().and_then(|n| n.to_str()) != Some(identifier.as_str()) {
+            return Err(format!("Ruta inesperada, no se borra: {}", dir.display()));
+        }
+        if dir.exists() {
+            std::fs::remove_dir_all(dir).map_err(|e| format!("No se pudo borrar {}: {e}", dir.display()))?;
+        }
+    }
+    Ok(())
 }

@@ -53,6 +53,12 @@ function resolutionFor(settings: Settings, monitor: MonitorInfo | undefined) {
   return {};
 }
 
+/** Retina screens render the game at physical pixels, so the HUD needs 2x. */
+function hudScaleFor(settings: Settings, monitor: MonitorInfo | undefined): number | undefined {
+  if (settings.hudScale !== "auto") return settings.hudScale;
+  return monitor ? Math.max(1, Math.round(monitor.scaleFactor * 2) / 2) : undefined;
+}
+
 export function MainScreen({ settings, status, steam, onChange, onChangeGameDir }: Props) {
   const gameDir = settings.gameDir!;
   const [section, setSection] = useState<Section>("play");
@@ -177,6 +183,9 @@ export function MainScreen({ settings, status, steam, onChange, onChangeGameDir 
     // serverOptions is represented by optionsKey
   }, [optionsKey, section, running]);
 
+  // Until the engine supports -display it always opens on the main screen.
+  const gameMonitor = status.supportsDisplay ? monitors[display] : monitors.find((m) => m.primary);
+
   async function launch(action: LaunchAction) {
     setError(null);
     setCrash(null);
@@ -189,6 +198,7 @@ export function MainScreen({ settings, status, steam, onChange, onChangeGameDir 
       extraArgs: settings.extraArgs || undefined,
       playerName: name.trim() || undefined,
       dataDir: settings.dataDir ?? undefined,
+      hudScale: hudScaleFor(settings, gameMonitor),
     };
     try {
       await platform.launchGame(options);

@@ -4,7 +4,7 @@ Launcher de escritorio para jugar Counter-Strike 1.6 con [Xash3D FWGS](https://g
 
 Hecho con Tauri 2 (Rust) + React 19 + Vite + Tailwind v4 + HeroUI v3.
 
-> **Deagle Launcher no incluye ni descarga el juego.** Necesitás tener [Counter-Strike en Steam](https://store.steampowered.com/app/10/CounterStrike/) y copiar tus propias carpetas `valve/` y `cstrike/` a la carpeta de Xash3D, como indica cs16-client.
+> **Deagle Launcher no incluye ni descarga el juego.** Necesitás tener [Counter-Strike en Steam](https://store.steampowered.com/app/10/CounterStrike/): el launcher usa esos archivos directamente. El motor Xash3D FWGS y cs16-client (código abierto) sí los puede instalar por vos desde sus releases oficiales.
 
 ## Qué hace (v0.1 — modo "juego rápido")
 
@@ -17,6 +17,12 @@ Hecho con Tauri 2 (Rust) + React 19 + Vite + Tailwind v4 + HeroUI v3.
   - **Abrir juego**: va al menú normal.
 - **Ajustes:** carpeta, modo (sin bordes / pantalla completa / ventana), resolución, cantidad de bots, argumentos extra, minimizar al jugar.
 - Mientras jugás el launcher se minimiza y vuelve al cerrar el juego. Si el juego crashea, muestra el final del log (`~/Library/Logs/com.mgodoy.deaglelauncher/game.log`).
+
+### Instalación automática del motor y cs16-client
+
+En la primera pantalla, **Instalar automáticamente** baja Xash3D FWGS (`xash3d-fwgs-apple-arm64.tar.xz`) y cs16-client (`CS16Client-macOS-arm64.zip`) de sus releases oficiales `continuous` en GitHub, **verifica el SHA-256** que GitHub publica para cada archivo (si no coincide o no está publicado, no instala) y los instala en `~/Library/Application Support/com.mgodoy.deaglelauncher/installs/oficial`. Al reinstalar conserva tus configs, historial y mapas descargados, y guarda la versión anterior en `oficial.anterior`.
+
+Los archivos del juego (`valve/`, `cstrike/`) nunca se descargan: salen de tu Steam o de una carpeta tuya. También podés seguir usando tu propia carpeta de Xash3D (por ejemplo, con un cs16-client compilado por vos).
 
 ### Archivos del juego desde Steam
 

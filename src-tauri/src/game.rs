@@ -411,9 +411,16 @@ pub fn sound_file(name: &str) -> Option<&'static str> {
 /// Sound files are a few KB; anything bigger is not what we expect.
 const MAX_SOUND_BYTES: u64 = 2 * 1024 * 1024;
 
-pub fn read_sound(dir: &Path, name: &str) -> Result<Vec<u8>, String> {
+/// Looks in the install first and then in the shared data folder (Steam's),
+/// where the sounds live when the install reads its data through -rodir.
+pub fn read_sound(dir: &Path, data_dir: Option<&Path>, name: &str) -> Result<Vec<u8>, String> {
     let rel = sound_file(name).ok_or_else(|| format!("Sonido desconocido: {name}"))?;
-    let path = dir.join(rel);
+    let shared = data_dir.filter(|d| crate::steam::is_data_dir(d));
+    let path = std::iter::once(dir)
+        .chain(shared)
+        .map(|base| base.join(rel))
+        .find(|p| p.is_file())
+        .ok_or_else(|| format!("No se encontró {rel}"))?;
     let len = fs::metadata(&path).map_err(|e| e.to_string())?.len();
     if len > MAX_SOUND_BYTES {
         return Err(format!("Archivo de sonido demasiado grande: {rel}"));
@@ -543,7 +550,18 @@ mod tests {
     fn only_known_sounds_are_readable() {
         assert!(sound_file("click").is_some());
         assert!(sound_file("../../etc/passwd").is_none());
-        assert!(read_sound(Path::new("/tmp"), "../secret").is_err());
+        assert!(read_sound(Path::new("/tmp"), None, "../secret").is_err());
+
+        // Falls back to the shared data folder (Steam's) when the install has no sounds.
+        let root = std::env::temp_dir().join(format!("cs16l-sound-{}", std::process::id()));
+        let (install, data) = (root.join("install"), root.join("steam"));
+        fs::create_dir_all(data.join("valve/sound/common")).unwrap();
+        fs::create_dir_all(data.join("cstrike")).unwrap();
+        fs::create_dir_all(&install).unwrap();
+        fs::write(data.join("valve/sound/common/launch_select2.wav"), b"RIFF").unwrap();
+        assert!(read_sound(&install, None, "click").is_err());
+        assert_eq!(read_sound(&install, Some(&data), "click").unwrap(), b"RIFF");
+        fs::remove_dir_all(&root).unwrap();
     }
 
     #[test]

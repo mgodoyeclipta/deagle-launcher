@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Button, Spinner } from "@heroui/react";
-import { ArrowRotateRight, ArrowUpRightFromSquare, Lock, Play, Star, StarFill } from "@gravity-ui/icons";
+import { Button, Input, Spinner, TextField } from "@heroui/react";
+import { ArrowRotateRight, ArrowUpRightFromSquare, Lock, Play, Plus, Star, StarFill } from "@gravity-ui/icons";
 import { platform } from "../lib/platform";
 import {
   argentinaServers,
   cleanName,
   formatDuration,
+  GAMETRACKER_ARGENTINA,
   gametrackerUrl,
+  isValidAddress,
   internetServers,
   pingLevel,
   type ServerSource,
@@ -27,7 +29,12 @@ const SOURCES: { id: ServerSource; label: string }[] = [
   { id: "favorites", label: "Favoritos" },
 ];
 
-type SortKey = "players" | "ping";
+type SortKey = "players" | "ping" | "name";
+
+const SORT_LABELS: Record<SortKey, string> = { players: "Jugadores", ping: "Ping", name: "Nombre" };
+
+/** Lowercase without accents, so "publico" finds "PÚBLICO". */
+const fold = (text: string) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
 const REFRESH_MS = 30_000;
 
@@ -39,6 +46,9 @@ export function ServerBrowser({ settings, running, onChange, onConnect }: Props)
   const [listError, setListError] = useState<string | null>(null);
   const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
   const [sort, setSort] = useState<SortKey>("players");
+  const [query, setQuery] = useState("");
+  const [hideEmpty, setHideEmpty] = useState(false);
+  const [hideFull, setHideFull] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [players, setPlayers] = useState<PlayerInfo[] | null>(null);
   const [playersError, setPlayersError] = useState<string | null>(null);
@@ -124,18 +134,56 @@ export function ServerBrowser({ settings, running, onChange, onConnect }: Props)
   }, [selected, updatedAt]);
 
   const rows = useMemo(() => {
-    const online = statuses.filter((s) => s.info);
-    const offline = statuses.filter((s) => !s.info);
-    online.sort((a, b) =>
-      sort === "ping"
-        ? a.info!.pingMs - b.info!.pingMs
-        : b.info!.players - a.info!.players || a.info!.pingMs - b.info!.pingMs,
-    );
+    const words = fold(query).split(/\s+/).filter(Boolean);
+    const label = (s: ServerStatus) => (s.info ? cleanName(s.info.name) : (names[s.address] ?? ""));
+    const matches = (s: ServerStatus) => {
+      if (!words.length) return true;
+      const haystack = fold(`${label(s)} ${s.info?.map ?? ""} ${s.address}`);
+      return words.every((w) => haystack.includes(w));
+    };
+    const visible = statuses.filter((s) => {
+      if (!matches(s)) return false;
+      if (hideEmpty && (!s.info || s.info.players === 0)) return false;
+      if (hideFull && s.info && s.info.players >= s.info.maxPlayers) return false;
+      return true;
+    });
+    const online = visible.filter((s) => s.info);
+    const offline = visible.filter((s) => !s.info);
+    online.sort((a, b) => {
+      if (sort === "ping") return a.info!.pingMs - b.info!.pingMs;
+      if (sort === "name") return label(a).localeCompare(label(b), "es", { sensitivity: "base" });
+      return b.info!.players - a.info!.players || a.info!.pingMs - b.info!.pingMs;
+    });
     return [...online, ...offline];
-  }, [statuses, sort]);
+  }, [statuses, sort, query, hideEmpty, hideFull, names]);
 
   const current = statuses.find((s) => s.address === selected) ?? null;
   const isFavorite = !!selected && favorites.includes(selected);
+
+  const [newFavorite, setNewFavorite] = useState("");
+  const [favoriteError, setFavoriteError] = useState<string | null>(null);
+
+  /** "1.2.3.4" → "1.2.3.4:27015"; trims spaces and a leading "connect ". */
+  function normalizeAddress(raw: string): string {
+    const text = raw.trim().replace(/^connect\s+/i, "").replace(/\s+/g, "");
+    return /:\d+$/.test(text) ? text : `${text}:27015`;
+  }
+
+  function addFavorite() {
+    const address = normalizeAddress(newFavorite);
+    if (!newFavorite.trim() || !isValidAddress(address)) {
+      setFavoriteError("Escribí una IP o dominio, por ejemplo 45.235.98.52:27038");
+      return;
+    }
+    if (favorites.includes(address)) {
+      setFavoriteError("Ese servidor ya está en tus favoritos");
+      return;
+    }
+    onChange({ favorites: [...favorites, address] });
+    setNewFavorite("");
+    setFavoriteError(null);
+    setSelected(address);
+  }
 
   function toggleFavorite(address: string) {
     onChange({
@@ -166,10 +214,44 @@ export function ServerBrowser({ settings, running, onChange, onConnect }: Props)
         ))}
       </div>
 
+      {source === "favorites" && (
+        <form
+          className="flex flex-col gap-1"
+          onSubmit={(e) => {
+            e.preventDefault();
+            addFavorite();
+          }}
+        >
+          <div className="flex items-end gap-2">
+            <TextField
+              className="flex-1"
+              value={newFavorite}
+              onChange={(v) => {
+                setNewFavorite(v);
+                setFavoriteError(null);
+              }}
+              aria-label="IP del servidor"
+              isInvalid={!!favoriteError}
+            >
+              <Input placeholder="IP del servidor (ej. 45.235.98.52:27038)" className="font-mono text-xs" />
+            </TextField>
+            <Button type="submit" size="sm" variant="secondary">
+              <Plus />
+              Agregar
+            </Button>
+          </div>
+          {favoriteError && <p className="text-xs text-danger">{favoriteError}</p>}
+        </form>
+      )}
+
+      <TextField value={query} onChange={setQuery} aria-label="Buscar servidor">
+        <Input placeholder="Buscar por nombre, mapa o IP (ej. dust2, automix)" className="text-xs" />
+      </TextField>
+
       <div className="flex items-center justify-between gap-2 text-xs text-muted">
         <div className="flex items-center gap-2">
           <span>Ordenar:</span>
-          {(["players", "ping"] as const).map((key) => (
+          {(["players", "ping", "name"] as const).map((key) => (
             <button
               key={key}
               type="button"
@@ -178,7 +260,7 @@ export function ServerBrowser({ settings, running, onChange, onConnect }: Props)
               aria-pressed={sort === key}
               onClick={() => setSort(key)}
             >
-              {key === "players" ? "Jugadores" : "Ping"}
+              {SORT_LABELS[key]}
             </button>
           ))}
         </div>
@@ -188,6 +270,21 @@ export function ServerBrowser({ settings, running, onChange, onConnect }: Props)
             {({ isPending }) => (isPending ? <Spinner size="sm" color="current" /> : <ArrowRotateRight />)}
           </Button>
         </div>
+      </div>
+
+      <div className="-mt-1 flex items-center gap-2 text-xs text-muted">
+        <span>Ocultar:</span>
+        <button type="button" className="sort-link" data-selected={hideEmpty || undefined} aria-pressed={hideEmpty} onClick={() => setHideEmpty((v) => !v)}>
+          vacíos
+        </button>
+        <button type="button" className="sort-link" data-selected={hideFull || undefined} aria-pressed={hideFull} onClick={() => setHideFull((v) => !v)}>
+          llenos
+        </button>
+        {statuses.length > 0 && (
+          <span className="ml-auto tabular-nums">
+            {rows.length === statuses.length ? `${statuses.length} servidores` : `${rows.length} de ${statuses.length}`}
+          </span>
+        )}
       </div>
 
       <div className="panel server-list min-h-[132px] flex-1 overflow-y-auto rounded-xl bg-surface p-1" role="listbox" aria-label="Servidores">
@@ -231,14 +328,22 @@ export function ServerBrowser({ settings, running, onChange, onConnect }: Props)
         {!loading && rows.length === 0 && (
           <p className="p-4 text-center text-xs text-muted">
             {listError ??
+              (statuses.length > 0 ? "Ningún servidor coincide con la búsqueda." : null) ??
               (source === "favorites"
-                ? "Marcá servidores con la estrella para verlos acá."
+                ? "Agregá un servidor con su IP, o marcá cualquiera con la estrella."
                 : source === "history"
                   ? "Todavía no hay servidores en tu historial."
                   : "No se encontraron servidores.")}
           </p>
         )}
       </div>
+
+      {source === "argentina" && (
+        <Button size="sm" variant="secondary" fullWidth onPress={() => platform.openUrl(GAMETRACKER_ARGENTINA)}>
+          <ArrowUpRightFromSquare />
+          Más servidores de Argentina en GameTracker
+        </Button>
+      )}
 
       {current && (
         <div className="panel server-detail flex flex-col gap-2 rounded-xl bg-surface p-3">
@@ -299,14 +404,9 @@ export function ServerBrowser({ settings, running, onChange, onConnect }: Props)
             >
               {isFavorite ? <StarFill /> : <Star />}
             </Button>
-            <Button
-              isIconOnly
-              size="sm"
-              variant="secondary"
-              aria-label="Ver en GameTracker"
-              onPress={() => platform.openUrl(gametrackerUrl(current.address))}
-            >
+            <Button size="sm" variant="secondary" onPress={() => platform.openUrl(gametrackerUrl(current.address))}>
               <ArrowUpRightFromSquare />
+              GameTracker
             </Button>
           </div>
         </div>

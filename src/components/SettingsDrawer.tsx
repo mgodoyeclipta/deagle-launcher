@@ -41,6 +41,13 @@ const RESOLUTIONS: { id: Resolution; label: string }[] = [
 
 const BOT_COUNTS = [3, 5, 9, 15, 19, 31];
 
+const HUD_SCALES: { id: string; label: string }[] = [
+  { id: "auto", label: "Automático (según la pantalla)" },
+  { id: "1", label: "Normal (1×)" },
+  { id: "1.5", label: "Mediano (1,5×)" },
+  { id: "2", label: "Grande (2×)" },
+];
+
 const VOLUMES = [
   { id: 30, label: "Bajo" },
   { id: 60, label: "Medio" },
@@ -148,7 +155,7 @@ export function SettingsDrawer({
                 </p>
                 <Button variant="secondary" size="sm" onPress={onChangeGameDir}>
                   <FolderOpen />
-                  Cambiar carpeta
+                  Cambiar instalación
                 </Button>
                 {steam?.dataDir && (
                   <Switch
@@ -184,6 +191,13 @@ export function SettingsDrawer({
                 value={settings.resolution}
                 options={RESOLUTIONS}
                 onChange={(resolution) => onChange({ resolution })}
+              />
+
+              <SimpleSelect
+                label="Tamaño del HUD"
+                value={String(settings.hudScale)}
+                options={HUD_SCALES}
+                onChange={(v) => onChange({ hudScale: v === "auto" ? "auto" : Number(v) })}
               />
 
               <SimpleSelect

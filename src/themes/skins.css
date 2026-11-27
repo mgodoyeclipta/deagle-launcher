@@ -171,6 +171,12 @@
   cursor: pointer;
 }
 
+.step-number {
+  border-radius: 999px;
+  background: var(--default);
+  color: var(--foreground);
+}
+
 .credits__logo {
   width: 112px;
   height: auto;
@@ -780,4 +786,44 @@
 
 [data-skin="classic"] .credits__link {
   color: var(--c-label);
+}
+
+/* Setup wizard ------------------------------------------------------------ */
+
+[data-skin="classic"] .step-number {
+  background: var(--c-bg-dark);
+  color: var(--c-label);
+  border: 1px solid;
+  border-color: var(--c-dark) var(--c-light) var(--c-light) var(--c-dark);
+}
+
+[data-skin="classic"] .setup-step h2 {
+  font-family: Verdana, Tahoma, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Steam-2004 style progress bar: chunky blocks. */
+[data-skin="classic"] .install-bar {
+  height: 14px;
+  padding: 2px;
+}
+
+[data-skin="classic"] .install-bar__fill {
+  background: repeating-linear-gradient(90deg, var(--c-label) 0 8px, transparent 8px 10px);
+}
+
+/* Destructive buttons keep the bevel, with red text. ---------------------- */
+
+[data-skin="classic"] .button--danger,
+[data-skin="classic"] .button--danger-soft {
+  color: var(--c-danger);
+}
+
+[data-skin="classic"] .button--danger {
+  outline: 1px solid #000;
+}
+
+[data-skin="classic"] .credits__logo {
+  cursor: default;
 }

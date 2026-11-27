@@ -32,6 +32,7 @@ interface Loaded {
 
 let ctx: AudioContext | null = null;
 let gameDir: string | null = null;
+let dataDir: string | null = null;
 let enabled = true;
 let volume = 0.6;
 let cache = new Map<SoundName, Promise<Loaded | null>>();
@@ -43,7 +44,7 @@ function context(): AudioContext {
 
 async function load(name: SoundName): Promise<Loaded | null> {
   if (!gameDir) return null;
-  const bytes = await platform.gameSound(gameDir, name);
+  const bytes = await platform.gameSound(gameDir, dataDir, name);
   if (!bytes) return null;
   const wav = decodeWav(bytes);
   if (!wav) return null;
@@ -69,9 +70,10 @@ function get(name: SoundName) {
 }
 
 export const sfx = {
-  configure(options: { gameDir: string | null; enabled: boolean; volume: number }) {
-    if (options.gameDir !== gameDir) {
+  configure(options: { gameDir: string | null; dataDir: string | null; enabled: boolean; volume: number }) {
+    if (options.gameDir !== gameDir || options.dataDir !== dataDir) {
       gameDir = options.gameDir;
+      dataDir = options.dataDir;
       cache = new Map();
       if (gameDir) ALL_SOUNDS.forEach(get); // preload: first click should not lag
     }

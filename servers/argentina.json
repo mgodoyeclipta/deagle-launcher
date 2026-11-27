@@ -1,7 +1,1233 @@
 {
   "description": "Servidores argentinos de Counter-Strike 1.6 para la pestaña Argentina de Deagle Launcher. Para sumar uno, abrí un PR agregando su dirección (IP:puerto). Solo servidores públicos.",
   "servers": [
-    { "address": "45.235.98.52:27038", "name": "Nostalgia Gamers Argentina — Público III" },
-    { "address": "186.19.63.56:27015", "name": "[ARG] Counter-Strike 1.6 Server +Bots" }
+    {
+      "address": "186.138.12.114:27015",
+      "name": "!1 - SIG CS. Deathrun. comunidadsigcs.com"
+    },
+    {
+      "address": "186.138.12.114:27016",
+      "name": "!2 - SIG CS. Publico + Bots. comunidadsigcs.com"
+    },
+    {
+      "address": "186.138.12.114:27017",
+      "name": "!3 - SIG CS. Fy_Pool_Day Only + Bots. comunidadsigcs.com"
+    },
+    {
+      "address": "186.138.12.114:27018",
+      "name": "!4 - SIG CS. TTT. Mata al Traidor + Bots. comunidadsigcs.com"
+    },
+    {
+      "address": "186.138.12.114:27019",
+      "name": "!5 - SIG CS. Surf. comunidadsigcs.com"
+    },
+    {
+      "address": "186.138.12.114:27020",
+      "name": "!6 - SIG CS. De_Dust2_Largo Only. comunidadsigcs.com"
+    },
+    {
+      "address": "186.138.12.114:27021",
+      "name": "!7 - SIG CS. Mix. comunidadsigcs.com"
+    },
+    {
+      "address": "186.138.12.114:27022",
+      "name": "!8 - SIG CS. HNS. Hide and Seek. comunidadsigcs.com"
+    },
+    {
+      "address": "45.235.98.40:27061",
+      "name": "# 1 ConiTos-sTriKe / MIX-PUB"
+    },
+    {
+      "address": "45.235.99.18:27017",
+      "name": "#00 |AUTOMIX| LDSGAMING.COM.AR"
+    },
+    {
+      "address": "45.235.98.120:27015",
+      "name": "#01 [Alta-Fruta] Only de_dust2 [www.altafruta.net]"
+    },
+    {
+      "address": "45.235.98.178:27015",
+      "name": "#01 [PUBLICO] [DE_DUST2] [MAPAS CSGO/CS2] | CRevOLUCION GAMING |"
+    },
+    {
+      "address": "45.235.98.41:27015",
+      "name": "#01 GUNGAME TEAMPLAY | Xtreme-Addictions.com.ar"
+    },
+    {
+      "address": "45.235.98.222:27550",
+      "name": "#01 PUBLICO"
+    },
+    {
+      "address": "45.235.98.68:27016",
+      "name": "#01 Unique Style | [AUTOMIX]"
+    },
+    {
+      "address": "23.175.40.124:27015",
+      "name": "#01 Zombie Plague Levels | Dusty Gaming"
+    },
+    {
+      "address": "45.235.98.42:27019",
+      "name": "#01 ZONA NORTE GAMING [AUTOMIX]"
+    },
+    {
+      "address": "45.235.98.66:27019",
+      "name": "#01 |AUTOMIX| LDSGAMING.COM.AR"
+    },
+    {
+      "address": "45.235.98.120:27016",
+      "name": "#02 [Alta-Fruta] Only Assault [www.altafruta.net]"
+    },
+    {
+      "address": "45.235.98.178:27016",
+      "name": "#02 [PUB/MIX/PCW] | CRevOLUCION GAMING |"
+    },
+    {
+      "address": "45.235.98.48:27051",
+      "name": "#02 MATA AL TRAIDOR TTT | WGAMERS.COM.AR con lo pibito'"
+    },
+    {
+      "address": "23.175.40.124:27016",
+      "name": "#02 Publico / Fruta | Dusty Gaming"
+    },
+    {
+      "address": "45.235.98.68:27015",
+      "name": "#02 Unique Style | [AUTOMIX]"
+    },
+    {
+      "address": "45.235.98.66:27021",
+      "name": "#02 |KZ+BHOP| LDSGAMING.COM.AR"
+    },
+    {
+      "address": "45.235.98.120:27017",
+      "name": "#03 [Alta-Fruta] Only de_inferno [www.altafruta.net]"
+    },
+    {
+      "address": "45.235.98.178:27017",
+      "name": "#03 [AUTOMIX] | CRevOLUCION GAMING |"
+    },
+    {
+      "address": "45.235.98.68:27056",
+      "name": "#03 Unique Style | [MIX/PCW]"
+    },
+    {
+      "address": "45.235.98.68:27034",
+      "name": "#03 Unique Style | [PUBLICO]"
+    },
+    {
+      "address": "45.235.98.222:27581",
+      "name": "#03 ZOMBIE LEVELS | NetGaming | netgamingcs.com"
+    },
+    {
+      "address": "45.235.99.18:27039",
+      "name": "#03 |PUBLICO| LDSGAMING.COM.AR"
+    },
+    {
+      "address": "45.235.98.120:27018",
+      "name": "#04 [Alta-Fruta] MIX [www.altafruta.net]"
+    },
+    {
+      "address": "45.235.98.178:27018",
+      "name": "#04 [MATA AL TRAIDOR] [TTT] [Trouble in Terrorist Town] | CRevOLUCION GAMING |"
+    },
+    {
+      "address": "45.235.98.222:27554",
+      "name": "#04 AUTOMIX"
+    },
+    {
+      "address": "45.235.98.120:27019",
+      "name": "#05 [Alta-Fruta] Jailbreak [www.altafruta.net]"
+    },
+    {
+      "address": "45.235.98.178:27019",
+      "name": "#05 [GUNGAME] | CRevOLUCION GAMING |"
+    },
+    {
+      "address": "45.235.98.48:27054",
+      "name": "#05 AUTOMIX / MIX | WGAMERS.COM.AR con lo pibito'"
+    },
+    {
+      "address": "45.235.98.120:27020",
+      "name": "#06 [Alta-Fruta] Mata al Traidor [TTT] [www.altafruta.net]"
+    },
+    {
+      "address": "45.235.98.178:27020",
+      "name": "#06 [ONLY FY_ICEWORLD2K SOLO ICEWORLD] | CRevOLUCION GAMING |"
+    },
+    {
+      "address": "45.235.98.120:27021",
+      "name": "#07 [Alta-Fruta] Fruta [www.altafruta.net]"
+    },
+    {
+      "address": "45.235.98.42:27044",
+      "name": "#07 [ONLY FY_POOL_DAY] SOLO POOL DAY | REVOLUCION GAMING |"
+    },
+    {
+      "address": "45.235.98.48:27056",
+      "name": "#07 ROCKET LEAGUE POTATO 2.0 | WGAMERS.COM.AR con lo pibito'"
+    },
+    {
+      "address": "45.235.98.120:27022",
+      "name": "#08 [Alta-Fruta] Deathmatch + FFA [www.altafruta.net]"
+    },
+    {
+      "address": "45.235.98.178:27021",
+      "name": "#08 [ONLY FY_POOL_DAY] default mode | CRevOLUCION GAMING |"
+    },
+    {
+      "address": "45.235.98.48:27057",
+      "name": "#08 ZOMBIE PLAGUE LEVELS | WGAMERS.COM.AR con lo pibito'"
+    },
+    {
+      "address": "45.235.98.120:27023",
+      "name": "#09 [Alta-Fruta] MultiMOD [www.altafruta.net]"
+    },
+    {
+      "address": "45.235.98.178:27022",
+      "name": "#09 [DEATHMATCH + FFA] | CRevOLUCION GAMING |"
+    },
+    {
+      "address": "45.235.98.67:27030",
+      "name": "#1 - CORDOBA AL PALO [PUBLICO]"
+    },
+    {
+      "address": "45.235.98.30:27775",
+      "name": "#1 [40TENEANDO] PUB/MIX"
+    },
+    {
+      "address": "45.235.98.74:27019",
+      "name": "#1 [AUTOMIX] LA PANDILLA"
+    },
+    {
+      "address": "45.235.98.67:27025",
+      "name": "#1 [COMUNIDAD LUNATICOS] [PUBLICO]"
+    },
+    {
+      "address": "45.235.98.74:27020",
+      "name": "#1 [PUB] Padre Mago y Asociados 420"
+    },
+    {
+      "address": "45.235.99.105:27057",
+      "name": "#1 EL VERDADERO PUB ARGENTINO"
+    },
+    {
+      "address": "45.235.98.48:27023",
+      "name": "#1 EL VERDADERO PUB ARGENTINO - NEW"
+    },
+    {
+      "address": "45.235.98.65:27024",
+      "name": "#1 EXILIADOS [PUBLICO/FRUTA]"
+    },
+    {
+      "address": "45.235.98.64:27015",
+      "name": "#1 GRAN HERMANO GAMING [MIX RECOIL]"
+    },
+    {
+      "address": "45.235.98.68:27027",
+      "name": "#1 Gualeguay Gaming [PUB-MIX]"
+    },
+    {
+      "address": "45.235.98.50:27018",
+      "name": "#1 MIX COMUNIDAD WAFFEN SS"
+    },
+    {
+      "address": "45.235.98.48:27021",
+      "name": "#1 MIX FORJAREX"
+    },
+    {
+      "address": "45.235.99.105:27670",
+      "name": "#1 PUBLICO + RESPAWN (ARGENTINA) | CBA Gaming"
+    },
+    {
+      "address": "45.235.98.30:27572",
+      "name": "#1 RESURGAM | [PUBLICO] [24/7]"
+    },
+    {
+      "address": "45.235.98.69:27023",
+      "name": "#1 ROLYGAMING[AUTOMIX 1] GRACIAS MESSI♥"
+    },
+    {
+      "address": "45.235.99.105:27590",
+      "name": "#1 ZOMBIE ESCAPE 2011 - 2015 || RIIZONERS"
+    },
+    {
+      "address": "45.235.98.41:27020",
+      "name": "#1 ZOMBIE PLAGUE LEVELS [GamesMasterCS]"
+    },
+    {
+      "address": "45.235.98.30:27538",
+      "name": "#1 Zombie Plague ZyN | Reawakening v3.0 VIP+ Free"
+    },
+    {
+      "address": "45.235.98.63:27016",
+      "name": "#1 | FLORES GAMING [MIX] * IG: @floresgaming.ok"
+    },
+    {
+      "address": "45.235.98.120:27024",
+      "name": "#10 [Alta-Fruta] GunGame [www.altafruta.net]"
+    },
+    {
+      "address": "45.235.98.120:27025",
+      "name": "#11 [Alta-Fruta] Público [www.altafruta.net]"
+    },
+    {
+      "address": "45.235.98.120:27026",
+      "name": "#12 [Alta-Fruta] Deathrun [www.altafruta.net]"
+    },
+    {
+      "address": "45.235.98.120:27027",
+      "name": "#13 [Alta-Fruta] Only fy_pool_day [www.altafruta.net]"
+    },
+    {
+      "address": "45.235.98.120:27028",
+      "name": "#14 [Alta-Fruta] Surf + Respawn [www.altafruta.net]"
+    },
+    {
+      "address": "45.235.98.120:27029",
+      "name": "#15 [Alta-Fruta] KreedZ [KZ] [www.altafruta.net]"
+    },
+    {
+      "address": "45.235.98.41:27098",
+      "name": "#2 [COMUNIDAD LUNATICOS] [AUTOMIX]"
+    },
+    {
+      "address": "45.235.98.40:27031",
+      "name": "#2 [PUB] Padre Mago y Asociados 420"
+    },
+    {
+      "address": "45.235.98.41:27021",
+      "name": "#2 AUTOMIX [GamesMasterCS]"
+    },
+    {
+      "address": "45.235.98.98:27024",
+      "name": "#2 EXILIADOS [KZ/BHOP]"
+    },
+    {
+      "address": "45.235.99.18:27043",
+      "name": "#2 GRAN HERMANO GAMING [MIX NO RECOIL]"
+    },
+    {
+      "address": "45.235.99.105:27671",
+      "name": "#2 MATA AL TRAIDOR TTT | CBA Gaming"
+    },
+    {
+      "address": "45.235.98.50:27019",
+      "name": "#2 MIX COMUNIDAD WAFFEN SS"
+    },
+    {
+      "address": "45.235.98.30:27531",
+      "name": "#2 RESURGAM | [AUTOMIX] [DEATHMATCH]"
+    },
+    {
+      "address": "45.235.98.69:27024",
+      "name": "#2 ROLYGAMING [RECOIL] [AUTOMIX 2]"
+    },
+    {
+      "address": "45.235.98.67:27032",
+      "name": "#3 - CORDOBA AL PALO [AUTOMIX]"
+    },
+    {
+      "address": "45.235.98.50:27020",
+      "name": "#3 <EXILIADOS> [AUTOMIX]"
+    },
+    {
+      "address": "45.235.98.42:27021",
+      "name": "#3 [AUTOMIX] Padre Mago y Asociados 420"
+    },
+    {
+      "address": "45.235.99.105:27672",
+      "name": "#3 AUTOMIX +1000 FPS | CBA Gaming"
+    },
+    {
+      "address": "45.235.99.18:27016",
+      "name": "#3 GRAN HERMANO GAMING [MIX NO RECOIL]"
+    },
+    {
+      "address": "45.235.98.41:27024",
+      "name": "#3 HNS LASERS/BLOQUES [GamesMasterCS]"
+    },
+    {
+      "address": "45.235.99.18:27047",
+      "name": "#3 ROLYGAMING [RECOIL] [AUTOMIX III]"
+    },
+    {
+      "address": "45.235.98.67:27033",
+      "name": "#4 - CORDOBA AL PALO [AUTOMIX]"
+    },
+    {
+      "address": "45.235.99.105:27673",
+      "name": "#4 ONLY FY_POOL_DAY | CBA Gaming"
+    },
+    {
+      "address": "45.235.98.41:27019",
+      "name": "#4 PUBLICO [GamesMasterCS]"
+    },
+    {
+      "address": "45.235.98.48:27019",
+      "name": "#4 ROLYGAMING [RECOIL] [AUTOMIX 4]"
+    },
+    {
+      "address": "45.235.98.67:27034",
+      "name": "#5 CAP - SERVIDOR EN CONSTRUCCIÓN"
+    },
+    {
+      "address": "45.235.98.65:27019",
+      "name": "#5 ROLYGAMING [RECOIL] [AUTOMIX V]"
+    },
+    {
+      "address": "45.235.98.41:27025",
+      "name": "#5 SUPERHERO [GamesMasterCS]"
+    },
+    {
+      "address": "45.235.99.105:27674",
+      "name": "#5 ZOMBIE PLAGUE LEVELS (CONSTRUCCION) | CBA Gaming"
+    },
+    {
+      "address": "45.235.98.30:27550",
+      "name": "(#01) Contercito Arg | SOLO ASALTO |"
+    },
+    {
+      "address": "45.235.99.105:27244",
+      "name": "(#01) Vieja School (Publico+Skins) www.dsc.gg/viejaschool"
+    },
+    {
+      "address": "45.235.99.105:27245",
+      "name": "(#02) Vieja School (Mario Kart) www.dsc.gg/viejaschoolcs"
+    },
+    {
+      "address": "45.235.99.105:27246",
+      "name": "(#03) Vieja School (Gungame) www.dsc.gg/viejaschool"
+    },
+    {
+      "address": "45.235.99.105:27555",
+      "name": "(#04) Vieja School (Knife Arena) www.dsc.gg/viejaschool"
+    },
+    {
+      "address": "45.235.99.105:27248",
+      "name": "(#05) Vieja School (SERVER TEST) www.vieja-school.net"
+    },
+    {
+      "address": "45.235.99.105:27249",
+      "name": "(#06) Vieja School (Only Assault) www.dsc.gg/viejaschool"
+    },
+    {
+      "address": "45.235.99.105:27250",
+      "name": "(#07) Vieja School (AutoMix I) www.dsc.gg/viejaschool"
+    },
+    {
+      "address": "45.235.99.105:27515",
+      "name": "(#08) Vieja School (Only de_inferno) www.dsc.gg/viejaschool"
+    },
+    {
+      "address": "45.235.99.105:27517",
+      "name": "(#10) Vieja School (Mata al Traidor - TTT) www.dsc.gg/viejaschool"
+    },
+    {
+      "address": "45.235.99.105:27518",
+      "name": "(#11) Vieja School (Publico II) Argentina"
+    },
+    {
+      "address": "45.235.99.105:27519",
+      "name": "(#12) Vieja School (Kz + Bhop 100aa) www.dsc.gg/viejaschool"
+    },
+    {
+      "address": "45.235.99.105:27520",
+      "name": "(#13) Vieja School (AutoMix II + GameGuard) dsc.gg/viejaschool"
+    },
+    {
+      "address": "45.235.98.48:27024",
+      "name": "- <SOK> [PUBLICO/FRUTA/MIX] RecOiL SiMPLe Clan<CO>*"
+    },
+    {
+      "address": "45.235.98.66:27034",
+      "name": "-01|ADP| aikidocs.com.ar [PUBLICO - MIX]"
+    },
+    {
+      "address": "45.235.98.66:27023",
+      "name": "-02|ADP| aikidocs.com.ar [PUBLICO OLD SCHOOL]-"
+    },
+    {
+      "address": "45.235.98.30:27756",
+      "name": "-CS-ARGENTINA-BOMBA EN B-"
+    },
+    {
+      "address": "186.64.99.10:27017",
+      "name": "1# [Zombie Apocalypse Evolution 1.0] - By: Normandia"
+    },
+    {
+      "address": "45.235.98.66:27029",
+      "name": "[#1] BREAKING GAMING [MIX I] [TT 12 - 7 CT] - [AUTOMIX EN CURSO"
+    },
+    {
+      "address": "45.235.98.30:27576",
+      "name": "[#1] PMP Games | PUBLICO [ CLASICO ]"
+    },
+    {
+      "address": "45.235.99.18:27052",
+      "name": "[#1] Publico - [Infiltrados Gaming]"
+    },
+    {
+      "address": "45.235.98.66:27031",
+      "name": "[#2] BREAKING GAMING [MIX II] - [MODO AUTOMIX]"
+    },
+    {
+      "address": "45.235.98.30:27749",
+      "name": "[#2] Mata al Traidor - [Infiltrados Gaming]"
+    },
+    {
+      "address": "45.235.98.30:27612",
+      "name": "[#2] PMP Games | PUBLICO [ CUSTOM MODE ]"
+    },
+    {
+      "address": "45.235.98.66:27022",
+      "name": "[#3] BREAKING GAMING [MIX III] [TT 10 - 13 CT] - [AUTOMIX EN CU"
+    },
+    {
+      "address": "45.235.98.30:27569",
+      "name": "[#3] PMP Games | PUBLICO [ AUTOMIX 2 vs 2 ]"
+    },
+    {
+      "address": "45.235.98.30:27781",
+      "name": "[#3] Publico CLASICO - [Infiltrados Gaming]"
+    },
+    {
+      "address": "45.235.98.66:27020",
+      "name": "[#4] BREAKING GAMING [MIX IV RECOIL] [TT 11 - 14 CT] - [AUTOMIX"
+    },
+    {
+      "address": "45.235.98.66:27026",
+      "name": "[#5] BREAKING GAMING [MIX V RECOIL] - [MODO AUTOMIX]"
+    },
+    {
+      "address": "45.235.98.66:27028",
+      "name": "[#6] BREAKING GAMING [DEATHMATCH + FFA]"
+    },
+    {
+      "address": "45.235.98.66:27038",
+      "name": "[#7] BREAKING GAMING [PUBLICO ARG]"
+    },
+    {
+      "address": "45.235.99.18:27025",
+      "name": "[ARG - CS2] ⚡ TiraníaGamer ⚡ [AUTOMIX #1] ❤️"
+    },
+    {
+      "address": "186.19.63.56:27015",
+      "name": "[ARG] Counter-Strike 1.6 Server +Bots"
+    },
+    {
+      "address": "45.235.98.222:27567",
+      "name": "[ARG] HNS Server"
+    },
+    {
+      "address": "45.235.98.42:27020",
+      "name": "[ARG] ♥♥♥ PANQUEQUE - BETA (Custom Maps)"
+    },
+    {
+      "address": "45.235.98.65:27029",
+      "name": "[eXe.ARG] | 4FUN 24/7 | NIGHTMODE | TOP15"
+    },
+    {
+      "address": "45.235.98.98:27021",
+      "name": "[high.society^] - Knife Argentina"
+    },
+    {
+      "address": "45.235.99.105:27586",
+      "name": "[MG] MasterGamers DEATHRUN + NIVELES (100aa)"
+    },
+    {
+      "address": "45.235.99.105:27055",
+      "name": "[Patagonia-Strike.com] AUTOMIX"
+    },
+    {
+      "address": "45.235.99.105:27047",
+      "name": "[Patagonia-Strike.com] PUBLICO"
+    },
+    {
+      "address": "45.235.99.105:27049",
+      "name": "[Patagonia-Strike.com] PUBLICO II"
+    },
+    {
+      "address": "45.235.99.105:27052",
+      "name": "[Patagonia-Strike.com] PUBLICO/FRUTA"
+    },
+    {
+      "address": "45.235.98.30:27562",
+      "name": "[SC] Zombie Plague (ZP+Level)"
+    },
+    {
+      "address": "45.235.99.105:27045",
+      "name": "Antiguo Strike | PCW/MIX"
+    },
+    {
+      "address": "45.235.98.44:27035",
+      "name": "ARGENTINA CS #1 SOLO INFERNO"
+    },
+    {
+      "address": "45.235.98.42:27065",
+      "name": "ARGENTINA CS #2 AUTOMIX"
+    },
+    {
+      "address": "45.235.98.42:27045",
+      "name": "ARGENTINA CS 2vs2"
+    },
+    {
+      "address": "45.235.98.50:27024",
+      "name": "ARGENTINA CS 3vs3"
+    },
+    {
+      "address": "45.235.98.30:27015",
+      "name": "ARGENTINA CS [#1] SOLO DUST2"
+    },
+    {
+      "address": "45.235.98.42:27015",
+      "name": "ARGENTINA CS ASALTO"
+    },
+    {
+      "address": "45.235.98.59:27019",
+      "name": "ARGENTINA CS AUTOMIX I"
+    },
+    {
+      "address": "45.235.99.18:27023",
+      "name": "ARGENTINA CS AUTOMIX II"
+    },
+    {
+      "address": "45.235.98.40:27015",
+      "name": "ARGENTINA CS AUTOMIX III"
+    },
+    {
+      "address": "45.235.98.59:27014",
+      "name": "ARGENTINA CS AWP INDIA"
+    },
+    {
+      "address": "45.235.98.59:27021",
+      "name": "ARGENTINA CS AZTEC"
+    },
+    {
+      "address": "45.235.98.62:27016",
+      "name": "ARGENTINA CS CAPTURA LA BANDERA"
+    },
+    {
+      "address": "45.235.98.48:27044",
+      "name": "ARGENTINA CS CLASICO I"
+    },
+    {
+      "address": "45.235.98.62:27017",
+      "name": "ARGENTINA CS CLASICO II"
+    },
+    {
+      "address": "45.235.98.62:27015",
+      "name": "ARGENTINA CS DUST2 CLASICO"
+    },
+    {
+      "address": "45.235.98.59:27025",
+      "name": "ARGENTINA CS DUST2 DEATHMATCH"
+    },
+    {
+      "address": "45.235.98.59:27015",
+      "name": "ARGENTINA CS DUST2 I"
+    },
+    {
+      "address": "45.235.98.50:27015",
+      "name": "ARGENTINA CS DUST2 II"
+    },
+    {
+      "address": "45.235.98.69:27015",
+      "name": "ARGENTINA CS DUST2 LARGO"
+    },
+    {
+      "address": "45.235.98.59:27017",
+      "name": "ARGENTINA CS FY_ICEWORLD"
+    },
+    {
+      "address": "45.235.98.59:27023",
+      "name": "ARGENTINA CS FY_POOL_DAY"
+    },
+    {
+      "address": "45.235.98.50:27034",
+      "name": "ARGENTINA CS GUNGAME"
+    },
+    {
+      "address": "45.235.98.66:27015",
+      "name": "ARGENTINA CS INFERNO CLASICO"
+    },
+    {
+      "address": "45.235.98.61:27019",
+      "name": "ARGENTINA CS INFERNO I"
+    },
+    {
+      "address": "45.235.98.74:27015",
+      "name": "ARGENTINA CS INFERNO II"
+    },
+    {
+      "address": "45.235.98.44:27015",
+      "name": "ARGENTINA CS MIRAGE"
+    },
+    {
+      "address": "45.235.98.67:27015",
+      "name": "ARGENTINA CS PUBLICO I"
+    },
+    {
+      "address": "45.235.98.65:27015",
+      "name": "ARGENTINA CS PUBLICO II"
+    },
+    {
+      "address": "45.235.99.18:27029",
+      "name": "ARGENTINA CS ZOMBIE PLAGUE"
+    },
+    {
+      "address": "45.235.98.222:27584",
+      "name": "ARGENTUM ZE IP NUEVA: 104.234.65.245:27580"
+    },
+    {
+      "address": "45.235.99.105:27058",
+      "name": "ARGENVILLA CS - PUBLICO"
+    },
+    {
+      "address": "45.235.99.105:27043",
+      "name": "AUTOMIX 2VS2"
+    },
+    {
+      "address": "45.235.98.52:27020",
+      "name": "AUTOMIX I · Nostalgia Gamers Argentina"
+    },
+    {
+      "address": "45.235.98.52:27021",
+      "name": "AUTOMIX II · Nostalgia Gamers Argentina"
+    },
+    {
+      "address": "45.235.98.52:27024",
+      "name": "AUTOMIX III · Nostalgia Gamers Argentina"
+    },
+    {
+      "address": "45.235.98.30:27573",
+      "name": "Avangardia"
+    },
+    {
+      "address": "45.235.98.30:27595",
+      "name": "BASEBUILDER | Necro Gaming"
+    },
+    {
+      "address": "45.235.98.52:27039",
+      "name": "BASEBUILDER · Nostalgia Gamers Argentina"
+    },
+    {
+      "address": "45.235.98.52:27030",
+      "name": "BATTLE ROYALE · Nostalgia Gamers Argentina"
+    },
+    {
+      "address": "45.235.98.66:27030",
+      "name": "BREAKING GAMING [PRUEBAS]"
+    },
+    {
+      "address": "45.235.98.30:27565",
+      "name": "Bro[t]hers #1 Only Ski2 - SURF+KILL+BOTS"
+    },
+    {
+      "address": "45.235.98.30:27555",
+      "name": "Bro[t]hers #2 Surf+Kill All Maps - El único SV Surf con Anticheat"
+    },
+    {
+      "address": "45.235.98.30:27535",
+      "name": "Bro[t]hers #3 Deathmatch - GameGuard Anticheat"
+    },
+    {
+      "address": "45.235.98.30:27602",
+      "name": "Bro[t]hers #5 Surf+Timer"
+    },
+    {
+      "address": "45.235.98.30:27610",
+      "name": "Bro[t]hers #6 GunGame"
+    },
+    {
+      "address": "45.235.98.30:27615",
+      "name": "Bro[t]hers #7 PUBLICO"
+    },
+    {
+      "address": "45.235.98.30:27566",
+      "name": "Bro[t]hers #9 AUTO-MIX"
+    },
+    {
+      "address": "45.235.98.52:27023",
+      "name": "CAPTURA LA BANDERA CTF · Nostalgia Gamers Argentina"
+    },
+    {
+      "address": "45.235.98.61:27020",
+      "name": "CHIVIL BRO #1 [MIX]"
+    },
+    {
+      "address": "45.235.98.61:27021",
+      "name": "CHIVIL BRO #4 [TORNEOS/PCW]"
+    },
+    {
+      "address": "45.235.99.18:27042",
+      "name": "Comunidad Cousins-Arg"
+    },
+    {
+      "address": "45.235.98.65:27028",
+      "name": "COMUNIDAD Cousins-Arg Mix 1"
+    },
+    {
+      "address": "45.235.98.40:27020",
+      "name": "COMUNIDAD Cousins-Arg Mix 2"
+    },
+    {
+      "address": "45.235.99.18:27032",
+      "name": "COMUNIDAD Cousins-Arg Mix 3"
+    },
+    {
+      "address": "45.235.99.18:27028",
+      "name": "COMUNIDAD Cousins-Arg Publico"
+    },
+    {
+      "address": "45.235.98.235:27023",
+      "name": "Comunidad Gamers [TEG] - AUTOMIX 2vs2 By Garryshost"
+    },
+    {
+      "address": "45.235.98.235:27018",
+      "name": "Comunidad Gamers [TEG] - AUTOMIX 5vs5 By Garryshost"
+    },
+    {
+      "address": "45.235.98.235:27020",
+      "name": "Comunidad Gamers [TEG] - DEATHMATCH By Garryshost"
+    },
+    {
+      "address": "45.235.98.235:27016",
+      "name": "Comunidad Gamers [TEG] - FRUTA By Garryshost"
+    },
+    {
+      "address": "45.235.98.235:27017",
+      "name": "Comunidad Gamers [TEG] - GUNGAME By Garryshost"
+    },
+    {
+      "address": "45.235.98.235:27022",
+      "name": "Comunidad Gamers [TEG] - MATA AL TRAIDOR TTT By Garryshost"
+    },
+    {
+      "address": "45.235.98.235:27019",
+      "name": "Comunidad Gamers [TEG] - ONLY [CS_ASSAULT] By Garryshost"
+    },
+    {
+      "address": "45.235.98.235:27024",
+      "name": "Comunidad Gamers [TEG] - ONLY [FY_ICEWORLD] By Garryshost"
+    },
+    {
+      "address": "45.235.98.235:27021",
+      "name": "Comunidad Gamers [TEG] - ONLY [FY_POOL_DAY] By Garryshost"
+    },
+    {
+      "address": "45.235.98.235:27015",
+      "name": "Comunidad Gamers [TEG] - PUBLICO [VIP Y SKINS GRATIS] By Garryshost"
+    },
+    {
+      "address": "45.235.98.222:27592",
+      "name": "Comunidad knd - AUTOMIX I"
+    },
+    {
+      "address": "45.235.98.222:27590",
+      "name": "Comunidad knd - AUTOMIX II"
+    },
+    {
+      "address": "45.235.98.222:27593",
+      "name": "Comunidad knd - DEATHMATCH"
+    },
+    {
+      "address": "45.235.98.222:27591",
+      "name": "Comunidad knd - PUBLICO"
+    },
+    {
+      "address": "45.235.98.65:27017",
+      "name": "CS GLOBAL PUB / MIX"
+    },
+    {
+      "address": "45.235.98.247:27040",
+      "name": "CS Server By Garryshost"
+    },
+    {
+      "address": "190.106.146.150:27015",
+      "name": "CS Server soporteee"
+    },
+    {
+      "address": "45.235.99.18:27022",
+      "name": "CS TUCUMAN | ONLY DUST2 CLASICO + RESPAWN #01"
+    },
+    {
+      "address": "45.235.98.98:27016",
+      "name": "CS TUCUMÁN | AUTOMIX #02"
+    },
+    {
+      "address": "45.235.98.30:27581",
+      "name": "CS VORTEX - Only Assault"
+    },
+    {
+      "address": "45.235.98.30:27589",
+      "name": "DarkGames CS [SoccerJam]"
+    },
+    {
+      "address": "45.235.98.52:27032",
+      "name": "DEATHMATCH + FFA · Nostalgia Gamers Argentina"
+    },
+    {
+      "address": "45.235.98.52:27016",
+      "name": "DEATHRUN + RESPAWN · Nostalgia Gamers Argentina"
+    },
+    {
+      "address": "45.235.99.105:27051",
+      "name": "DM + BOTS"
+    },
+    {
+      "address": "45.235.98.178:27036",
+      "name": "ELO CUP | OFFICIAL TORNEOS 5vs5"
+    },
+    {
+      "address": "45.235.98.64:27017",
+      "name": "ER04 Mix"
+    },
+    {
+      "address": "45.235.98.64:27019",
+      "name": "EVOLUTION ZP | ZOMBIE PLAGUE 1.6 | LEVEL | RESET |"
+    },
+    {
+      "address": "168.75.78.187:27015",
+      "name": "facuarmo's server - Mix (CS + AWP + FY)"
+    },
+    {
+      "address": "168.75.78.187:27018",
+      "name": "facuarmo's server - Only AWP"
+    },
+    {
+      "address": "168.75.78.187:27016",
+      "name": "facuarmo's server - Only fy_iceworld2k"
+    },
+    {
+      "address": "168.75.78.187:27019",
+      "name": "facuarmo's server - Only Knife"
+    },
+    {
+      "address": "64.176.14.203:37017",
+      "name": "gabutique#7 gabu-strike [Pub]"
+    },
+    {
+      "address": "45.235.98.40:27017",
+      "name": "GaLaXy-GaMiNG [Pub]"
+    },
+    {
+      "address": "45.235.98.52:27028",
+      "name": "GUNGAME + FFA + TEAMPLAY · Nostalgia Gamers Argentina"
+    },
+    {
+      "address": "186.182.87.47:27016",
+      "name": "HARDPLAY [FRUTA]"
+    },
+    {
+      "address": "186.182.87.47:27015",
+      "name": "HARDPLAY [PUBLICO]"
+    },
+    {
+      "address": "45.235.99.105:27553",
+      "name": "HisteriaServers.com.ar - 1000 FPS"
+    },
+    {
+      "address": "45.235.98.52:27017",
+      "name": "HNS + LASER · Nostalgia Gamers Argentina"
+    },
+    {
+      "address": "45.235.98.52:27022",
+      "name": "JAILBREAK · Nostalgia Gamers Argentina"
+    },
+    {
+      "address": "160.20.247.76:27018",
+      "name": "KreedZ KZ [100aa]"
+    },
+    {
+      "address": "45.235.98.52:27026",
+      "name": "KREEDZ KZ EASY 10/100 AA · Nostalgia Gamers Argentina"
+    },
+    {
+      "address": "45.235.98.52:27027",
+      "name": "KREEDZ KZ HARD 10/100 AA · Nostalgia Gamers Argentina"
+    },
+    {
+      "address": "45.235.99.105:27591",
+      "name": "KZ"
+    },
+    {
+      "address": "45.235.98.52:27031",
+      "name": "LA MANCHA · Nostalgia Gamers Argentina"
+    },
+    {
+      "address": "45.235.98.63:27017",
+      "name": "LA RESISTENCIA GAMER"
+    },
+    {
+      "address": "45.235.98.30:27582",
+      "name": "LC| Zombie Escape ARGENTINA|dsc.gg/luxury-club|FastDL|1000FPS|FreeVIP"
+    },
+    {
+      "address": "45.235.99.105:27640",
+      "name": "Legion Strike [AUTOMIX]"
+    },
+    {
+      "address": "45.235.98.44:27021",
+      "name": "Los pibes 2.0"
+    },
+    {
+      "address": "45.235.99.105:27050",
+      "name": "lucasmdq - Patagonia-Strike.com"
+    },
+    {
+      "address": "45.235.98.63:27021",
+      "name": "Lujanet [MIX/PCW]"
+    },
+    {
+      "address": "45.235.99.105:27594",
+      "name": "MALA FAMA GAMING [AUTOMIX]"
+    },
+    {
+      "address": "45.235.98.52:27025",
+      "name": "MAPAS FRUTA AWP AIM VIP 35HP · Nostalgia Gamers Argentina"
+    },
+    {
+      "address": "45.235.98.52:27019",
+      "name": "MATA AL TRAIDOR TTT · Nostalgia Gamers Argentina"
+    },
+    {
+      "address": "45.235.99.105:27641",
+      "name": "MATA EL TRAIDOR TTT"
+    },
+    {
+      "address": "45.235.98.68:27024",
+      "name": "MnDuKiTa Gungame [TEAMPLAY/FFA]"
+    },
+    {
+      "address": "190.106.131.16:27031",
+      "name": "N1 ~ LNJ [Zombie Carnage] [Nightmare] SV #N2: implnj.com:27032"
+    },
+    {
+      "address": "190.106.131.16:27032",
+      "name": "N2 ~ LNJ [Zombie Carnage] [Nightmare] SV #N3: implnj.com:27033"
+    },
+    {
+      "address": "190.106.131.16:27033",
+      "name": "N3 ~ LNJ [Zombie Carnage] [Nightmare] SV #N3: implnj.com:27034"
+    },
+    {
+      "address": "45.235.98.68:27025",
+      "name": "NORTHERN GAMES #1 [AUTOMIX]"
+    },
+    {
+      "address": "45.235.98.52:27041",
+      "name": "NOSTALGIA CS ASSAULT ARGENTINA"
+    },
+    {
+      "address": "45.235.98.52:27044",
+      "name": "NOSTALGIA CS AZTEC ARGENTINA"
+    },
+    {
+      "address": "45.235.98.52:27036",
+      "name": "NOSTALGIA CS DUST2 ARGENTINA"
+    },
+    {
+      "address": "45.235.98.52:27037",
+      "name": "NOSTALGIA CS INFERNO CLASICO ARGENTINA"
+    },
+    {
+      "address": "45.235.98.52:27042",
+      "name": "NOSTALGIA CS MIRAGE ARGENTINA"
+    },
+    {
+      "address": "45.235.99.105:27059",
+      "name": "nostalgiacs.com - PUBLICO"
+    },
+    {
+      "address": "45.235.98.247:27061",
+      "name": "Nueva-era | KreedZ KZ Extreme-Death | 10aa/100aa"
+    },
+    {
+      "address": "45.235.98.247:27055",
+      "name": "Nueva-era | KreedZ KZ Normal | 10aa/100aa"
+    },
+    {
+      "address": "45.235.98.52:27034",
+      "name": "NUEVO ZOMBIE ESCAPE · Nostalgia Gamers Argentina"
+    },
+    {
+      "address": "23.175.40.99:27017",
+      "name": "PlayOne.com.ar [Surf] - Sponsor by @AMONPUL"
+    },
+    {
+      "address": "200.40.207.190:27016",
+      "name": "POOLDAY 24x7 CON LOS PIBES!"
+    },
+    {
+      "address": "45.235.99.105:27056",
+      "name": "PUBLICO"
+    },
+    {
+      "address": "200.40.207.190:27015",
+      "name": "PUBLICO 24x7 CON LOS PIBES!"
+    },
+    {
+      "address": "45.235.98.68:27020",
+      "name": "PUBLICO ARGENTINA SOLO DUST2 (VIP Y SKINS GRATIS) ROLYGAMING"
+    },
+    {
+      "address": "45.235.98.52:27015",
+      "name": "PUBLICO CLASICO · Nostalgia Gamers Argentina"
+    },
+    {
+      "address": "45.235.98.222:27551",
+      "name": "PUBLICO II"
+    },
+    {
+      "address": "45.235.98.52:27035",
+      "name": "PUBLICO II · Nostalgia Gamers Argentina"
+    },
+    {
+      "address": "45.235.98.52:27038",
+      "name": "PUBLICO III + RESPAWN · Nostalgia Gamers Argentina"
+    },
+    {
+      "address": "45.235.98.52:27043",
+      "name": "ROCKET LEAGUE 2.0 · Nostalgia Gamers Argentina"
+    },
+    {
+      "address": "45.235.99.105:27054",
+      "name": "RPG MOD [SUPER HERO MOD]"
+    },
+    {
+      "address": "45.235.98.30:27533",
+      "name": "servidor de pruebas g"
+    },
+    {
+      "address": "45.235.98.52:27029",
+      "name": "SOCCERJAM · Nostalgia Gamers Argentina"
+    },
+    {
+      "address": "130.94.106.209:27015",
+      "name": "Style Gaming # sG* Publico [1.6]"
+    },
+    {
+      "address": "45.235.98.52:27033",
+      "name": "SUPERHERO · Nostalgia Gamers Argentina"
+    },
+    {
+      "address": "45.235.98.52:27018",
+      "name": "SURF + RESPAWN · Nostalgia Gamers Argentina"
+    },
+    {
+      "address": "45.235.99.105:27593",
+      "name": "Taringa-CS.net - AUTOMIX"
+    },
+    {
+      "address": "45.235.99.105:27060",
+      "name": "Taringa-CS.net - AUTOMIX II"
+    },
+    {
+      "address": "45.235.99.105:27048",
+      "name": "Taringa-CS.net - PUBLICO"
+    },
+    {
+      "address": "23.251.33.22:27035",
+      "name": "TdTemperley"
+    },
+    {
+      "address": "45.235.98.30:27580",
+      "name": "TOWER DEFENSE + BOSS + LVL | Necro Gaming"
+    },
+    {
+      "address": "45.235.98.68:27030",
+      "name": "UNDERGROUND STRIKE [AUTOMIX]"
+    },
+    {
+      "address": "45.235.98.30:27527",
+      "name": "VALORANT MOD | Necro Gaming"
+    },
+    {
+      "address": "45.235.98.50:27016",
+      "name": "VLADIMIUX TEAM"
+    },
+    {
+      "address": "45.235.99.18:27031",
+      "name": "VORTEX'GAMING [PUB/MIX]"
+    },
+    {
+      "address": "45.235.98.52:27040",
+      "name": "ZOMBIE PLAGUE 2.0 · Nostalgia Gamers Argentina"
+    },
+    {
+      "address": "45.235.98.30:27614",
+      "name": "ZOMBIE PLAGUE | Necro Gaming"
+    },
+    {
+      "address": "45.235.98.30:27515",
+      "name": "|1| [TriGGer.Arena] ~|AutoMix|~"
+    },
+    {
+      "address": "45.235.98.48:27020",
+      "name": "« « GaLaXy » » [Mix] (2)"
+    },
+    {
+      "address": "45.235.98.63:27020",
+      "name": "«« SUR FUCK STRIKE »» 【 AUTOMIX 】 Arg"
+    },
+    {
+      "address": "45.235.98.50:27017",
+      "name": "«« SUR FUCK STRIKE »»【 3vs3 AUTOMIX 】 Arg"
+    },
+    {
+      "address": "45.235.98.41:27018",
+      "name": "• #00 SOLO DUST2 | @claneminence | ARGENTINA | CLAN EMINENCE CS 1.6 PUBLICO AUTOMIX"
+    },
+    {
+      "address": "45.235.98.61:27015",
+      "name": "• #01 PUBLICO - CLASICO | @claneminence | ARGENTINA | CLAN EMINENCE CS 1.6 DUST2 AUTOMIX"
+    },
+    {
+      "address": "45.235.98.69:27025",
+      "name": "• #02 CAPTURA LA BANDERA | @claneminence | ARGENTINA | CLAN EMINENCE CAPTURE THE FLAGCTFPUBLICODEATHMATCHAUTOMIX"
+    },
+    {
+      "address": "45.235.98.64:27025",
+      "name": "• #03 DEATHMATCH Y GUNGAME | @claneminence | ARGENTINA | CLAN EMINENCE DM / GG FFAPUBLICOAUTOMIX"
+    },
+    {
+      "address": "45.235.98.42:27018",
+      "name": "• #04 AUTOMIX 1 | ELIGIENDO ENTRA | @claneminence | ARGENTINA | CLAN EMINENCE"
+    },
+    {
+      "address": "45.235.98.59:27018",
+      "name": "• #05 AUTOMIX 2 | ADMINS: 1 | @claneminence | ARGENTINA | CLAN EMINENCE"
+    },
+    {
+      "address": "45.235.98.61:27017",
+      "name": "• #1 INÐØNESIARG [AUTØMIX][STEAM PLUGINS]"
+    },
+    {
+      "address": "45.235.98.65:27020",
+      "name": "• #2 INÐØNESIARG [AUTØMIX][STEAM PLUGINS]"
+    },
+    {
+      "address": "45.235.98.222:27017",
+      "name": "⭐MDQServers.net⭐ #3 [RETAKE] !ws!knife!rank"
+    },
+    {
+      "address": "45.235.98.222:27018",
+      "name": "⭐MDQServers.net⭐ #4 [RETAKE] !ws!knife!rank"
+    },
+    {
+      "address": "45.235.98.222:27019",
+      "name": "⭐MDQServers.net⭐ #5 [RETAKE] !ws!knife!rank"
+    },
+    {
+      "address": "45.235.98.222:27020",
+      "name": "⭐MDQServers.net⭐ #6 [RETAKE] !ws!knife!rank"
+    },
+    {
+      "address": "45.235.98.222:27021",
+      "name": "⭐MDQServers.net⭐ #7 [RETAKE] !ws!knife!rank"
+    },
+    {
+      "address": "45.235.99.18:27027",
+      "name": "｢ LOS BARDOS ARGENTINA ｣ < P Ú B L I C O >"
+    }
   ]
 }

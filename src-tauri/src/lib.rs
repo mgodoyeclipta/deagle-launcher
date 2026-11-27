@@ -2,6 +2,7 @@ mod a2s;
 mod commands;
 mod discord;
 mod game;
+mod installer;
 mod launch;
 mod steam;
 
@@ -30,6 +31,10 @@ pub fn run() {
             commands::read_crosshair,
             commands::write_crosshair,
             commands::detect_steam,
+            commands::official_install,
+            commands::install_official,
+            commands::check_data_dir,
+            commands::factory_reset,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

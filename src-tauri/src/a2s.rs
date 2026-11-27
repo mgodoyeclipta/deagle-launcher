@@ -15,7 +15,7 @@ const HEADER: [u8; 4] = [0xFF; 4];
 const INFO_REQUEST: &[u8] = b"TSource Engine Query\0";
 const TIMEOUT: Duration = Duration::from_millis(1500);
 /// Upper bound on servers per request, to keep a single refresh reasonable.
-pub const MAX_SERVERS: usize = 256;
+pub const MAX_SERVERS: usize = 512;
 
 #[derive(Debug, Serialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
