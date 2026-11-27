@@ -3,6 +3,7 @@ mod commands;
 mod discord;
 mod game;
 mod launch;
+mod steam;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -28,6 +29,7 @@ pub fn run() {
             commands::discord_presence,
             commands::read_crosshair,
             commands::write_crosshair,
+            commands::detect_steam,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

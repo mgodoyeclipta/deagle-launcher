@@ -44,6 +44,9 @@ pub struct LaunchOptions {
     pub action: LaunchAction,
     pub extra_args: Option<String>,
     pub player_name: Option<String>,
+    /// Read-only folder with `valve/` and `cstrike/` (Steam's copy), via `-rodir`.
+    #[serde(default)]
+    pub data_dir: Option<String>,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -70,6 +73,13 @@ impl GameState {
 /// unit-tested and so every user-provided value is validated in one place.
 pub fn build_args(opts: &LaunchOptions, supports_display: bool) -> Result<Vec<String>, String> {
     let mut args: Vec<String> = vec!["-game".into(), "cstrike".into()];
+
+    if let Some(data) = &opts.data_dir {
+        if !crate::steam::is_data_dir(Path::new(data)) {
+            return Err("La carpeta de datos de Steam no tiene valve/ y cstrike/".into());
+        }
+        args.extend(["-rodir".into(), data.clone()]);
+    }
 
     args.push(
         match opts.window_mode {
@@ -139,12 +149,14 @@ pub fn launch(app: &AppHandle, opts: LaunchOptions) -> Result<(), String> {
 
 fn spawn(app: &AppHandle, opts: LaunchOptions) -> Result<(), String> {
     let dir = PathBuf::from(&opts.game_dir);
-    let status = game::check(&dir);
+    let data_dir = opts.data_dir.as_deref().map(Path::new);
+    let status = game::check(&dir, data_dir);
     if !status.ok {
         return Err("La carpeta del juego no está lista. Revisala en Ajustes.".into());
     }
 
     if let Some(name) = &opts.player_name {
+        game::seed_config(&dir, data_dir)?;
         game::write_name(&dir, name)?;
     }
 
@@ -214,6 +226,7 @@ mod tests {
             action,
             extra_args: None,
             player_name: None,
+            data_dir: None,
         }
     }
 
@@ -234,6 +247,21 @@ mod tests {
         let ok = build_args(&opts(LaunchAction::Connect { address: "1.2.3.4:27015".into() }), false).unwrap();
         assert_eq!(&ok[3..], ["+connect", "1.2.3.4:27015"]);
         assert!(build_args(&opts(LaunchAction::Connect { address: "1.2.3.4;quit".into() }), false).is_err());
+    }
+
+    #[test]
+    fn rodir_requires_real_data_folder() {
+        let mut o = opts(LaunchAction::Menu);
+        o.data_dir = Some("/definitely/not/here".into());
+        assert!(build_args(&o, false).is_err());
+
+        let data = std::env::temp_dir().join(format!("cs16l-rodir-{}", std::process::id()));
+        std::fs::create_dir_all(data.join("valve")).unwrap();
+        std::fs::create_dir_all(data.join("cstrike")).unwrap();
+        o.data_dir = Some(data.display().to_string());
+        let args = build_args(&o, false).unwrap();
+        assert_eq!(&args[..4], ["-game", "cstrike", "-rodir", data.to_str().unwrap()]);
+        std::fs::remove_dir_all(&data).unwrap();
     }
 
     #[test]

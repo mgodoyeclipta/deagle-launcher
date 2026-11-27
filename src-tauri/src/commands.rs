@@ -6,20 +6,20 @@ use std::path::Path;
 use tauri::{AppHandle, State};
 
 #[tauri::command]
-pub fn check_game_dir(game_dir: String) -> GameDirStatus {
-    game::check(Path::new(&game_dir))
+pub fn check_game_dir(game_dir: String, data_dir: Option<String>) -> GameDirStatus {
+    game::check(Path::new(&game_dir), data_dir.as_deref().map(Path::new))
 }
 
 #[tauri::command]
-pub fn fix_game_dir(game_dir: String) -> Result<GameDirStatus, String> {
+pub fn fix_game_dir(game_dir: String, data_dir: Option<String>) -> Result<GameDirStatus, String> {
     let dir = Path::new(&game_dir);
     game::fix(dir)?;
-    Ok(game::check(dir))
+    Ok(game::check(dir, data_dir.as_deref().map(Path::new)))
 }
 
 #[tauri::command]
-pub fn read_player_name(game_dir: String) -> Option<String> {
-    game::read_name(Path::new(&game_dir))
+pub fn read_player_name(game_dir: String, data_dir: Option<String>) -> Option<String> {
+    game::read_name(game::config_base(Path::new(&game_dir), data_dir.as_deref().map(Path::new)))
 }
 
 #[tauri::command]
@@ -105,8 +105,9 @@ pub async fn discord_presence(
 
 /// Current crosshair and HUD colour cvars from config.cfg.
 #[tauri::command]
-pub fn read_crosshair(game_dir: String) -> std::collections::HashMap<String, String> {
-    game::read_cvars(Path::new(&game_dir), game::CROSSHAIR_CVARS)
+pub fn read_crosshair(game_dir: String, data_dir: Option<String>) -> std::collections::HashMap<String, String> {
+    let base = game::config_base(Path::new(&game_dir), data_dir.as_deref().map(Path::new));
+    game::read_cvars(base, game::CROSSHAIR_CVARS)
 }
 
 /// Saves crosshair/HUD cvars into config.cfg. Refused while the game runs,
@@ -115,10 +116,19 @@ pub fn read_crosshair(game_dir: String) -> std::collections::HashMap<String, Str
 pub fn write_crosshair(
     state: State<'_, GameState>,
     game_dir: String,
+    data_dir: Option<String>,
     values: std::collections::HashMap<String, String>,
 ) -> Result<(), String> {
     if state.is_running() {
         return Err("Cerrá el juego para guardar la mira: el juego reescribe su configuración al salir.".into());
     }
-    game::write_crosshair(Path::new(&game_dir), &values)
+    let dir = Path::new(&game_dir);
+    game::seed_config(dir, data_dir.as_deref().map(Path::new))?;
+    game::write_crosshair(dir, &values)
+}
+
+/// Where (and whether) Steam has Counter-Strike installed.
+#[tauri::command]
+pub fn detect_steam() -> crate::steam::SteamStatus {
+    crate::steam::detect()
 }

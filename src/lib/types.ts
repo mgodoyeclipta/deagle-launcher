@@ -3,6 +3,13 @@ export type WindowMode = "windowed" | "fullscreen" | "borderless";
 /** "classic" = 2004-era Steam/HLDS look; "modern" = default HeroUI dark. */
 export type Skin = "classic" | "modern";
 
+export interface SteamStatus {
+  steamInstalled: boolean;
+  csInstalled: boolean;
+  /** Steam's Half-Life folder (has valve/ and cstrike/), when Counter-Strike is installed. */
+  dataDir: string | null;
+}
+
 export interface GameDirStatus {
   engine: boolean;
   executable: boolean;
@@ -29,6 +36,8 @@ export interface LaunchOptions {
   action: LaunchAction;
   extraArgs?: string;
   playerName?: string;
+  /** Read-only game data folder (Steam's), passed to the engine as -rodir. */
+  dataDir?: string;
 }
 
 export interface ServerInfo {
@@ -102,6 +111,8 @@ export type Resolution = "native" | `${number}x${number}`;
 export interface Settings {
   skin: Skin;
   gameDir: string | null;
+  /** Read the game data from Steam's folder instead of the install's own valve/ and cstrike/. */
+  dataDir: string | null;
   windowMode: WindowMode;
   resolution: Resolution;
   display: number;
@@ -123,6 +134,7 @@ export interface Settings {
 export const DEFAULT_SETTINGS: Settings = {
   skin: "classic",
   gameDir: null,
+  dataDir: null,
   windowMode: "borderless",
   resolution: "native",
   display: 0,

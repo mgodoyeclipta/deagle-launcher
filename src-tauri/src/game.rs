@@ -42,7 +42,10 @@ pub fn engine_path(dir: &Path) -> PathBuf {
     dir.join(ENGINE_BIN)
 }
 
-pub fn check(dir: &Path) -> GameDirStatus {
+/// `data_dir` is an optional read-only folder with `valve/` and `cstrike/`
+/// (Steam's copy), used through the engine's `-rodir`.
+pub fn check(dir: &Path, data_dir: Option<&Path>) -> GameDirStatus {
+    let shared_data = data_dir.is_some_and(crate::steam::is_data_dir);
     let engine = engine_path(dir);
     let has_engine = engine.is_file();
     let executable = has_engine
@@ -50,9 +53,12 @@ pub fn check(dir: &Path) -> GameDirStatus {
             .map(|m| m.permissions().mode() & 0o111 != 0)
             .unwrap_or(false);
     let quarantined = has_engine && has_quarantine(&engine);
-    let valve = dir.join("valve").is_dir();
-    let cstrike = dir.join("cstrike").is_dir();
-    let client = any_file(&dir.join("cstrike/cl_dlls"), &["client_arm64.dylib", "client.dylib"]);
+    let valve = dir.join("valve").is_dir() || shared_data;
+    let cstrike = dir.join("cstrike").is_dir() || shared_data;
+    // cs16-client = its libraries plus its resource pack (menu, HUD); without
+    // extras.pk3 the game shows the wrong menu and crashes.
+    let client = any_file(&dir.join("cstrike/cl_dlls"), &["client_arm64.dylib", "client.dylib"])
+        && dir.join("cstrike/extras.pk3").is_file();
     let bots = any_file(&dir.join("cstrike/dlls"), &["yapb_arm64.dylib", "yapb.dylib"]);
     let supports_display = file_contains(&dir.join(ENGINE_LIB), b"-display");
 
@@ -174,6 +180,27 @@ pub fn write_cvars(dir: &Path, values: &[(&str, String)]) -> Result<(), String> 
     let mut out = lines.join("\n");
     out.push('\n');
     fs::write(&path, out).map_err(|e| e.to_string())
+}
+
+/// The config to read from: the install's own, or the shared data folder's
+/// until the game has written one locally.
+pub fn config_base<'a>(dir: &'a Path, data_dir: Option<&'a Path>) -> &'a Path {
+    match data_dir {
+        Some(data) if !config_path(dir).is_file() && config_path(data).is_file() => data,
+        _ => dir,
+    }
+}
+
+/// Before the first edit of an install that reads its data from elsewhere,
+/// start from that data folder's config.cfg instead of an empty file
+/// (an almost empty config.cfg would wipe the player's key bindings).
+pub fn seed_config(dir: &Path, data_dir: Option<&Path>) -> Result<(), String> {
+    let base = config_base(dir, data_dir);
+    if base != dir {
+        fs::create_dir_all(dir.join("cstrike")).map_err(|e| e.to_string())?;
+        fs::copy(config_path(base), config_path(dir)).map_err(|e| e.to_string())?;
+    }
+    Ok(())
 }
 
 /// Reads the `name "..."` cvar the game saved in `config.cfg`.
@@ -399,6 +426,17 @@ mod tests {
     use super::*;
 
     #[test]
+    fn client_needs_its_resource_pack() {
+        let dir = std::env::temp_dir().join(format!("cs16l-client-{}", std::process::id()));
+        fs::create_dir_all(dir.join("cstrike/cl_dlls")).unwrap();
+        fs::write(dir.join("cstrike/cl_dlls/client_arm64.dylib"), b"x").unwrap();
+        assert!(!check(&dir, None).client, "binaries alone are not enough");
+        fs::write(dir.join("cstrike/extras.pk3"), b"x").unwrap();
+        assert!(check(&dir, None).client);
+        fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
     fn parses_cvar_lines() {
         assert_eq!(parse_cvar_line("name \"matiGOD\"", "name"), Some("matiGOD".into()));
         assert_eq!(parse_cvar_line("  name   \"a b\"", "name"), Some("a b".into()));
@@ -417,6 +455,26 @@ mod tests {
         assert!(!is_safe_cvar_value("1\"; quit"));
         assert!(!is_safe_cvar_value("Small"));
         assert!(!is_safe_cvar_value(""));
+    }
+
+    #[test]
+    fn seeds_config_from_shared_data() {
+        let root = std::env::temp_dir().join(format!("cs16l-seed-{}", std::process::id()));
+        let (install, data) = (root.join("install"), root.join("steam"));
+        fs::create_dir_all(data.join("cstrike")).unwrap();
+        fs::create_dir_all(data.join("valve")).unwrap();
+        fs::write(config_path(&data), "bind \"w\" \"+forward\"\nname \"Player\"\n").unwrap();
+
+        assert_eq!(config_base(&install, Some(&data)), data.as_path());
+        assert_eq!(read_name(config_base(&install, Some(&data))), Some("Player".into()));
+        seed_config(&install, Some(&data)).unwrap();
+        write_name(&install, "matiGOD").unwrap();
+        let text = fs::read_to_string(config_path(&install)).unwrap();
+        assert_eq!(text, "bind \"w\" \"+forward\"\nname \"matiGOD\"\n");
+        assert_eq!(fs::read_to_string(config_path(&data)).unwrap(), "bind \"w\" \"+forward\"\nname \"Player\"\n");
+        assert_eq!(config_base(&install, Some(&data)), install.as_path());
+
+        fs::remove_dir_all(&root).unwrap();
     }
 
     #[test]

@@ -12,6 +12,7 @@ import { availableMonitors, getCurrentWindow } from "@tauri-apps/api/window";
 import { open } from "@tauri-apps/plugin-dialog";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { Store } from "@tauri-apps/plugin-store";
+import packageJson from "../../package.json";
 import {
   DEFAULT_SETTINGS,
   type GameDirStatus,
@@ -23,6 +24,7 @@ import {
   type Presence,
   type ServerStatus,
   type Settings,
+  type SteamStatus,
 } from "./types";
 
 export interface Platform {
@@ -30,9 +32,11 @@ export interface Platform {
   loadSettings(): Promise<Settings>;
   saveSettings(settings: Settings): Promise<void>;
   pickGameDir(): Promise<string | null>;
-  checkGameDir(gameDir: string): Promise<GameDirStatus>;
-  fixGameDir(gameDir: string): Promise<GameDirStatus>;
-  readPlayerName(gameDir: string): Promise<string | null>;
+  checkGameDir(gameDir: string, dataDir: string | null): Promise<GameDirStatus>;
+  fixGameDir(gameDir: string, dataDir: string | null): Promise<GameDirStatus>;
+  readPlayerName(gameDir: string, dataDir: string | null): Promise<string | null>;
+  /** Finds Steam and its Counter-Strike install. */
+  detectSteam(): Promise<SteamStatus>;
   recentServers(gameDir: string): Promise<string[]>;
   listMaps(gameDir: string): Promise<string[]>;
   monitors(): Promise<MonitorInfo[]>;
@@ -53,9 +57,9 @@ export interface Platform {
   /** Sets the Discord Rich Presence, or clears it with null. */
   discordPresence(presence: Presence | null): Promise<void>;
   /** Crosshair and HUD colour cvars from config.cfg. */
-  readCrosshair(gameDir: string): Promise<Record<string, string>>;
+  readCrosshair(gameDir: string, dataDir: string | null): Promise<Record<string, string>>;
   /** Saves them; fails while the game is running. */
-  writeCrosshair(gameDir: string, values: Record<string, string>): Promise<void>;
+  writeCrosshair(gameDir: string, dataDir: string | null, values: Record<string, string>): Promise<void>;
   minimize(): Promise<void>;
   restore(): Promise<void>;
   close(): Promise<void>;
@@ -96,9 +100,10 @@ const tauriPlatform: Platform = {
     return typeof dir === "string" ? dir : null;
   },
 
-  checkGameDir: (gameDir) => invoke("check_game_dir", { gameDir }),
-  fixGameDir: (gameDir) => invoke("fix_game_dir", { gameDir }),
-  readPlayerName: (gameDir) => invoke("read_player_name", { gameDir }),
+  checkGameDir: (gameDir, dataDir) => invoke("check_game_dir", { gameDir, dataDir }),
+  fixGameDir: (gameDir, dataDir) => invoke("fix_game_dir", { gameDir, dataDir }),
+  readPlayerName: (gameDir, dataDir) => invoke("read_player_name", { gameDir, dataDir }),
+  detectSteam: () => invoke("detect_steam"),
   recentServers: (gameDir) => invoke("recent_servers", { gameDir }),
   listMaps: (gameDir) => invoke("list_maps", { gameDir }),
 
@@ -140,8 +145,8 @@ const tauriPlatform: Platform = {
   appVersion: () => getVersion(),
   discordAvailable: () => invoke("discord_available"),
   discordPresence: (presence) => invoke("discord_presence", { presence }),
-  readCrosshair: (gameDir) => invoke("read_crosshair", { gameDir }),
-  writeCrosshair: (gameDir, values) => invoke("write_crosshair", { gameDir, values }),
+  readCrosshair: (gameDir, dataDir) => invoke("read_crosshair", { gameDir, dataDir }),
+  writeCrosshair: (gameDir, dataDir, values) => invoke("write_crosshair", { gameDir, dataDir, values }),
 
   minimize: () => getCurrentWindow().minimize(),
 
@@ -243,6 +248,12 @@ const mockPlatform: Platform = {
   checkGameDir: async () => mockStatus(),
   fixGameDir: async () => mockStatus(),
   readPlayerName: async () => "matiGOD",
+  detectSteam: async () => {
+    const mode = new URLSearchParams(location.search).get("steam");
+    if (mode === "none") return { steamInstalled: false, csInstalled: false, dataDir: null };
+    if (mode === "nocs") return { steamInstalled: true, csInstalled: false, dataDir: null };
+    return { steamInstalled: true, csInstalled: true, dataDir: "/Users/demo/Library/Application Support/Steam/steamapps/common/Half-Life" };
+  },
   recentServers: async () => ["45.235.98.52:27038", "82.77.209.165:27015", "186.19.63.56:27015"],
   listMaps: async () => ["cs_italy", "cs_office", "de_aztec", "de_dust2", "de_inferno", "de_nuke", "de_train"],
 
@@ -302,14 +313,14 @@ const mockPlatform: Platform = {
     engine: { build: 4045, commit: "7d87d65", branch: "master", platform: "apple-arm64" },
     clientBuiltAt: Date.UTC(2026, 3, 29) / 1000,
   }),
-  appVersion: async () => "0.2.0",
+  appVersion: async () => packageJson.version,
   discordAvailable: async () => true,
   discordPresence: async (presence) => {
     console.info("[mock] Discord presence", presence);
   },
 
   readCrosshair: async () => ({ ...mockCrosshair }),
-  writeCrosshair: async (_gameDir, values) => {
+  writeCrosshair: async (_gameDir, _dataDir, values) => {
     if (mockRunning) throw "Cerrá el juego para guardar la mira: el juego reescribe su configuración al salir.";
     Object.assign(mockCrosshair, values);
   },

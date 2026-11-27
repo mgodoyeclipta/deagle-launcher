@@ -5,7 +5,7 @@ import { SetupScreen } from "./components/SetupScreen";
 import { TitleBar } from "./components/TitleBar";
 import { platform } from "./lib/platform";
 import { installClickSounds, sfx } from "./lib/sfx";
-import type { GameDirStatus, Settings } from "./lib/types";
+import type { GameDirStatus, Settings, SteamStatus } from "./lib/types";
 
 type Phase = "loading" | "setup" | "main";
 
@@ -26,13 +26,15 @@ function Screens() {
   const [status, setStatus] = useState<GameDirStatus | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [steam, setSteam] = useState<SteamStatus | null>(null);
 
   useEffect(() => {
     (async () => {
-      const loaded = await platform.loadSettings();
+      const [loaded, steamStatus] = await Promise.all([platform.loadSettings(), platform.detectSteam()]);
+      setSteam(steamStatus);
       setSettings(loaded);
       if (loaded.gameDir) {
-        const s = await platform.checkGameDir(loaded.gameDir);
+        const s = await platform.checkGameDir(loaded.gameDir, loaded.dataDir);
         setStatus(s);
         setPhase(s.ok ? "main" : "setup");
       } else {
@@ -40,6 +42,19 @@ function Screens() {
       }
     })();
   }, []);
+
+  // While Counter-Strike is missing from Steam (e.g. it's installing right now), keep looking.
+  useEffect(() => {
+    if (phase !== "setup" || !steam?.steamInstalled || steam.csInstalled) return;
+    const timer = setInterval(() => platform.detectSteam().then(setSteam).catch(() => {}), 5000);
+    return () => clearInterval(timer);
+  }, [phase, steam?.steamInstalled, steam?.csInstalled]);
+
+  // Re-check the install whenever its folder or data source changes.
+  useEffect(() => {
+    if (!settings?.gameDir || phase === "loading") return;
+    platform.checkGameDir(settings.gameDir, settings.dataDir).then(setStatus).catch(() => {});
+  }, [settings?.gameDir, settings?.dataDir, steam?.dataDir]);
 
   useEffect(() => {
     if (settings) document.documentElement.dataset.skin = settings.skin;
@@ -67,8 +82,11 @@ function Screens() {
     if (!dir) return;
     setBusy(true);
     try {
-      update({ gameDir: dir, lastServer: null });
-      setStatus(await platform.checkGameDir(dir));
+      // Use the folder's own valve/ and cstrike/ if it has them; otherwise Steam's.
+      const own = await platform.checkGameDir(dir, null);
+      const dataDir = own.valve && own.cstrike ? null : (steam?.dataDir ?? null);
+      update({ gameDir: dir, dataDir, lastServer: null });
+      setStatus(dataDir ? await platform.checkGameDir(dir, dataDir) : own);
       setPhase("setup");
     } catch (e) {
       setError(String(e));
@@ -82,7 +100,7 @@ function Screens() {
     setError(null);
     setBusy(true);
     try {
-      setStatus(await platform.fixGameDir(settings.gameDir));
+      setStatus(await platform.fixGameDir(settings.gameDir, settings.dataDir));
     } catch (e) {
       setError(String(e));
     } finally {
@@ -102,15 +120,20 @@ function Screens() {
     return (
       <SetupScreen
         gameDir={settings.gameDir}
+        dataDir={settings.dataDir}
+        steam={steam}
         status={status}
         busy={busy}
         error={error}
         onPick={pickDir}
         onFix={fixDir}
+        onUseSteam={() => steam?.dataDir && update({ dataDir: steam.dataDir })}
         onContinue={() => setPhase("main")}
       />
     );
   }
 
-  return <MainScreen settings={settings} status={status} onChange={update} onChangeGameDir={pickDir} />;
+  return (
+    <MainScreen settings={settings} status={status} steam={steam} onChange={update} onChangeGameDir={pickDir} />
+  );
 }

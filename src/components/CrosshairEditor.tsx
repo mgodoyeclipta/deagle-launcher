@@ -25,6 +25,7 @@ import {
 
 interface Props {
   gameDir: string;
+  dataDir: string | null;
   running: boolean;
 }
 
@@ -138,7 +139,7 @@ function ColorPicker({ label, value, onChange }: { label: string; value: RGB; on
   );
 }
 
-export function CrosshairEditor({ gameDir, running }: Props) {
+export function CrosshairEditor({ gameDir, dataDir, running }: Props) {
   const [saved, setSaved] = useState<CrosshairConfig | null>(null);
   const [cfg, setCfg] = useState<CrosshairConfig>(DEFAULT_CROSSHAIR);
   const [background, setBackground] = useState(BACKGROUNDS[0]);
@@ -153,12 +154,12 @@ export function CrosshairEditor({ gameDir, running }: Props) {
   const minGap = restingGap(cfg, weapon);
 
   useEffect(() => {
-    platform.readCrosshair(gameDir).then((cvars) => {
+    platform.readCrosshair(gameDir, dataDir).then((cvars) => {
       const loaded = fromCvars(cvars);
       setSaved(loaded);
       setCfg(loaded);
     });
-  }, [gameDir]);
+  }, [gameDir, dataDir]);
 
   // Recoil simulation: the gap opens on each shot and closes over time,
   // exactly like the client does every frame.
@@ -198,7 +199,7 @@ export function CrosshairEditor({ gameDir, running }: Props) {
     setSaving(true);
     setMessage(null);
     try {
-      await platform.writeCrosshair(gameDir, toCvars(cfg));
+      await platform.writeCrosshair(gameDir, dataDir, toCvars(cfg));
       setSaved(cfg);
       setMessage({ ok: true, text: "Guardado. Se aplica la próxima vez que abras el juego." });
     } catch (e) {

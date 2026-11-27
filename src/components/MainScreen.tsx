@@ -3,6 +3,7 @@ import { Alert, Button, Input, Label, ListBox, Select, Spinner, Tabs, TextField 
 import type { Key } from "@heroui/react";
 import { ArrowRightToSquare, Copy, Gear, Persons, Play, Shuffle } from "@gravity-ui/icons";
 import { CrosshairEditor } from "./CrosshairEditor";
+import { Credits } from "./Credits";
 import { MonitorPicker } from "./MonitorPicker";
 import { ServerBrowser } from "./ServerBrowser";
 import { SettingsDrawer } from "./SettingsDrawer";
@@ -19,11 +20,13 @@ import type {
   MonitorInfo,
   ServerInfo,
   Settings,
+  SteamStatus,
 } from "../lib/types";
 
 interface Props {
   settings: Settings;
   status: GameDirStatus;
+  steam: SteamStatus | null;
   onChange: (patch: Partial<Settings>) => void;
   onChangeGameDir: () => void;
 }
@@ -50,7 +53,7 @@ function resolutionFor(settings: Settings, monitor: MonitorInfo | undefined) {
   return {};
 }
 
-export function MainScreen({ settings, status, onChange, onChangeGameDir }: Props) {
+export function MainScreen({ settings, status, steam, onChange, onChangeGameDir }: Props) {
   const gameDir = settings.gameDir!;
   const [section, setSection] = useState<Section>("play");
   const [name, setName] = useState("");
@@ -61,6 +64,7 @@ export function MainScreen({ settings, status, onChange, onChangeGameDir }: Prop
   const [monitors, setMonitors] = useState<MonitorInfo[]>([]);
   const [running, setRunning] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [creditsOpen, setCreditsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [crash, setCrash] = useState<GameExited | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -111,7 +115,7 @@ export function MainScreen({ settings, status, onChange, onChangeGameDir }: Prop
     : 0;
 
   useEffect(() => {
-    platform.readPlayerName(gameDir).then((n) => setName(n ?? ""));
+    platform.readPlayerName(gameDir, settings.dataDir).then((n) => setName(n ?? ""));
     platform.recentServers(gameDir).then(setServers);
     platform.listMaps(gameDir).then((list) => {
       setMaps(list);
@@ -126,7 +130,7 @@ export function MainScreen({ settings, status, onChange, onChangeGameDir }: Prop
       setRunning(false);
       platform.restore();
       setSession(null);
-      platform.readPlayerName(gameDir).then((n) => n && setName(n));
+      platform.readPlayerName(gameDir, settings.dataDir).then((n) => n && setName(n));
       platform.recentServers(gameDir).then(setServers);
       if (!e.success) {
         setCrash(e);
@@ -184,6 +188,7 @@ export function MainScreen({ settings, status, onChange, onChangeGameDir }: Prop
       action,
       extraArgs: settings.extraArgs || undefined,
       playerName: name.trim() || undefined,
+      dataDir: settings.dataDir ?? undefined,
     };
     try {
       await platform.launchGame(options);
@@ -378,7 +383,7 @@ export function MainScreen({ settings, status, onChange, onChangeGameDir }: Prop
         </Tabs.Panel>
 
         <Tabs.Panel id="crosshair" className="min-h-0 flex-1 px-6 pt-4 pb-4">
-          <CrosshairEditor gameDir={gameDir} running={running} />
+          <CrosshairEditor gameDir={gameDir} dataDir={settings.dataDir} running={running} />
         </Tabs.Panel>
       </Tabs>
 
@@ -427,6 +432,8 @@ export function MainScreen({ settings, status, onChange, onChangeGameDir }: Prop
         </div>
       )}
 
+      <Credits isOpen={creditsOpen} onOpenChange={setCreditsOpen} />
+
       <SettingsDrawer
         isOpen={settingsOpen}
         onOpenChange={(open) => {
@@ -434,9 +441,14 @@ export function MainScreen({ settings, status, onChange, onChangeGameDir }: Prop
           setSettingsOpen(open);
         }}
         discordAvailable={discordAvailable}
+        steam={steam}
         updates={updates}
         checkingUpdates={checkingUpdates}
         onCheckUpdates={runUpdateCheck}
+        onShowCredits={() => {
+          setSettingsOpen(false);
+          setCreditsOpen(true);
+        }}
         settings={settings}
         onChange={onChange}
         onChangeGameDir={() => {

@@ -18,6 +18,10 @@ Hecho con Tauri 2 (Rust) + React 19 + Vite + Tailwind v4 + HeroUI v3.
 - **Ajustes:** carpeta, modo (sin bordes / pantalla completa / ventana), resolución, cantidad de bots, argumentos extra, minimizar al jugar.
 - Mientras jugás el launcher se minimiza y vuelve al cerrar el juego. Si el juego crashea, muestra el final del log (`~/Library/Logs/com.mgodoy.deaglelauncher/game.log`).
 
+### Archivos del juego desde Steam
+
+El launcher detecta Steam (`~/Library/Application Support/Steam`, todas sus bibliotecas de `libraryfolders.vdf`) y si Counter-Strike (app 10) está instalado. En ese caso puede usar los `valve/` y `cstrike/` de Steam **sin copiarlos**: se los pasa al motor con `-rodir` (carpeta base de solo lectura), y el motor escribe configs y descargas solo en la carpeta de Xash3D. Si CS no está instalado, ofrece abrir Steam para instalarlo y lo detecta cuando termina.
+
 ### Temas y sonidos
 
 - **Clásico** (por defecto): homenaje a la interfaz de Steam/HLDS de 2003–2004 — verde oliva, bordes biselados, Tahoma, barra de título propia con `_` y `X`. También hay un tema **Moderno**.

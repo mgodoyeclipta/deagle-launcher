@@ -3,7 +3,7 @@ import type { Key } from "@heroui/react";
 import { ArrowUpRightFromSquare, CircleCheck, CircleExclamation, FolderOpen } from "@gravity-ui/icons";
 import { platform } from "../lib/platform";
 import type { ComponentUpdate, UpdateReport } from "../lib/updates";
-import type { Resolution, Settings, Skin, WindowMode } from "../lib/types";
+import type { Resolution, Settings, Skin, SteamStatus, WindowMode } from "../lib/types";
 
 interface Props {
   isOpen: boolean;
@@ -12,9 +12,11 @@ interface Props {
   onChange: (patch: Partial<Settings>) => void;
   onChangeGameDir: () => void;
   discordAvailable: boolean;
+  steam: SteamStatus | null;
   updates: UpdateReport | null;
   checkingUpdates: boolean;
   onCheckUpdates: () => void;
+  onShowCredits: () => void;
 }
 
 const SKINS: { id: Skin; label: string }[] = [
@@ -123,9 +125,11 @@ export function SettingsDrawer({
   onChange,
   onChangeGameDir,
   discordAvailable,
+  steam,
   updates,
   checkingUpdates,
   onCheckUpdates,
+  onShowCredits,
 }: Props) {
   return (
     <Drawer>
@@ -146,6 +150,19 @@ export function SettingsDrawer({
                   <FolderOpen />
                   Cambiar carpeta
                 </Button>
+                {steam?.dataDir && (
+                  <Switch
+                    isSelected={settings.dataDir === steam.dataDir}
+                    onChange={(on) => onChange({ dataDir: on ? steam.dataDir : null })}
+                  >
+                    <Switch.Content>
+                      <Switch.Control>
+                        <Switch.Thumb />
+                      </Switch.Control>
+                      Usar los archivos del juego de Steam
+                    </Switch.Content>
+                  </Switch>
+                )}
               </div>
 
               <SimpleSelect
@@ -247,6 +264,10 @@ export function SettingsDrawer({
                   Solo avisa y abre la página oficial: el launcher no descarga ni reemplaza archivos del juego.
                 </p>
               </div>
+
+              <Button variant="tertiary" size="sm" className="self-start" onPress={onShowCredits}>
+                Créditos
+              </Button>
             </Drawer.Body>
           </Drawer.Dialog>
         </Drawer.Content>

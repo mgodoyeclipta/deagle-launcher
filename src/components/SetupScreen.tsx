@@ -1,14 +1,21 @@
 import { Alert, Button, Spinner } from "@heroui/react";
-import { CircleCheck, CircleXmark, FolderOpen, Wrench } from "@gravity-ui/icons";
-import type { GameDirStatus } from "../lib/types";
+import { ArrowUpRightFromSquare, CircleCheck, CircleExclamation, CircleXmark, FolderOpen, Wrench } from "@gravity-ui/icons";
+import { platform } from "../lib/platform";
+import type { GameDirStatus, SteamStatus } from "../lib/types";
+
+const STEAM_INSTALL_CS = "steam://install/10";
+const STEAM_STORE_CS = "https://store.steampowered.com/app/10/CounterStrike/";
 
 interface Props {
   gameDir: string | null;
+  dataDir: string | null;
+  steam: SteamStatus | null;
   status: GameDirStatus | null;
   busy: boolean;
   error: string | null;
   onPick: () => void;
   onFix: () => void;
+  onUseSteam: () => void;
   onContinue: () => void;
 }
 
@@ -18,18 +25,88 @@ interface Check {
   ok: boolean;
 }
 
-function checks(s: GameDirStatus): Check[] {
+function checks(s: GameDirStatus, fromSteam: boolean): Check[] {
   return [
     { label: "Motor Xash3D", hint: "El archivo xash3d", ok: s.engine },
     { label: "Permiso para ejecutar", hint: "xash3d marcado como ejecutable", ok: s.executable },
     { label: "Sin cuarentena de macOS", hint: "Gatekeeper no lo bloquea", ok: !s.quarantined },
-    { label: "Carpeta valve/", hint: "Copiada de tu Half-Life de Steam", ok: s.valve },
-    { label: "Carpeta cstrike/", hint: "Copiada de tu CS 1.6 de Steam", ok: s.cstrike },
-    { label: "cs16-client", hint: "Instalado en cstrike/cl_dlls", ok: s.client },
+    { label: "Archivos de Half-Life (valve/)", hint: fromSteam ? "Desde tu Steam" : "En la carpeta del juego", ok: s.valve },
+    { label: "Archivos de Counter-Strike (cstrike/)", hint: fromSteam ? "Desde tu Steam" : "En la carpeta del juego", ok: s.cstrike },
+    { label: "cs16-client", hint: "Binarios en cstrike/cl_dlls y extras.pk3", ok: s.client },
   ];
 }
 
-export function SetupScreen({ gameDir, status, busy, error, onPick, onFix, onContinue }: Props) {
+function SteamCard({
+  steam,
+  dataDir,
+  onUseSteam,
+}: {
+  steam: SteamStatus | null;
+  dataDir: string | null;
+  onUseSteam: () => void;
+}) {
+  if (!steam) return null;
+
+  if (steam.csInstalled && steam.dataDir) {
+    const using = dataDir === steam.dataDir;
+    return (
+      <div className="panel flex items-start gap-3 rounded-xl bg-surface p-3">
+        <CircleCheck className="mt-0.5 size-4 shrink-0 text-success" />
+        <div className="min-w-0 flex-1">
+          <p className="text-sm">Counter-Strike encontrado en Steam</p>
+          <p className="truncate text-xs text-muted" title={steam.dataDir}>
+            {using ? "El launcher usa estos archivos directamente, sin copiarlos." : steam.dataDir}
+          </p>
+        </div>
+        {!using && (
+          <Button size="sm" variant="secondary" onPress={onUseSteam}>
+            Usar
+          </Button>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="panel flex flex-col gap-2 rounded-xl bg-surface p-3">
+      <div className="flex items-start gap-3">
+        <CircleExclamation className="mt-0.5 size-4 shrink-0 text-warning" />
+        <div className="min-w-0">
+          <p className="text-sm">
+            {steam.steamInstalled ? "Counter-Strike no está instalado en Steam" : "No encontramos Steam"}
+          </p>
+          <p className="text-xs text-muted">
+            {steam.steamInstalled
+              ? "Instalalo desde Steam: el launcher lo detecta solo cuando termine."
+              : "Necesitás tu copia de Counter-Strike en Steam, o una carpeta con valve/ y cstrike/."}
+          </p>
+        </div>
+      </div>
+      <Button
+        size="sm"
+        variant="secondary"
+        className="self-start"
+        onPress={() => platform.openUrl(steam.steamInstalled ? STEAM_INSTALL_CS : STEAM_STORE_CS)}
+      >
+        <ArrowUpRightFromSquare />
+        {steam.steamInstalled ? "Instalar en Steam" : "Conseguir Counter-Strike en Steam"}
+      </Button>
+    </div>
+  );
+}
+
+export function SetupScreen({
+  gameDir,
+  dataDir,
+  steam,
+  status,
+  busy,
+  error,
+  onPick,
+  onFix,
+  onUseSteam,
+  onContinue,
+}: Props) {
   const canFix = !!status?.engine && (!status.executable || status.quarantined);
 
   return (
@@ -39,11 +116,12 @@ export function SetupScreen({ gameDir, status, busy, error, onPick, onFix, onCon
           <p className="text-sm font-medium tracking-wide text-accent">Deagle Launcher</p>
           <h1 className="mt-1 text-2xl font-semibold">Configuremos tu juego</h1>
           <p className="mt-2 text-sm text-muted">
-            El launcher no incluye el juego. Elegí la carpeta de Xash3D donde copiaste{" "}
-            <code className="text-foreground">valve/</code> y{" "}
-            <code className="text-foreground">cstrike/</code> de Steam.
+            El launcher no incluye el juego: usa tu copia de Counter-Strike de Steam y el motor Xash3D FWGS
+            con cs16-client.
           </p>
         </header>
+
+        <SteamCard steam={steam} dataDir={dataDir} onUseSteam={onUseSteam} />
 
         <Button variant="secondary" size="lg" fullWidth onPress={onPick} isPending={busy}>
           {({ isPending }) => (
@@ -62,7 +140,7 @@ export function SetupScreen({ gameDir, status, busy, error, onPick, onFix, onCon
 
         {status && (
           <ul className="panel flex flex-col gap-1 rounded-xl bg-surface p-2">
-            {checks(status).map((c) => (
+            {checks(status, !!dataDir).map((c) => (
               <li key={c.label} className="flex items-center gap-3 rounded-lg px-2 py-1.5">
                 {c.ok ? (
                   <CircleCheck className="size-4 shrink-0 text-success" />

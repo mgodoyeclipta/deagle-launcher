@@ -24,7 +24,7 @@
 }
 
 .titlebar__icon {
-  width: 14px;
+  width: auto;
   height: 14px;
   color: var(--accent);
   pointer-events: none;
@@ -169,6 +169,23 @@
   border: none;
   background: transparent;
   cursor: pointer;
+}
+
+.credits__logo {
+  width: 112px;
+  height: auto;
+}
+
+.credits__link {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.credits__message {
+  border-left: 3px solid var(--accent);
+  padding-left: 10px;
+  font-style: italic;
 }
 
 .xhair-hud {
@@ -707,4 +724,60 @@
 
 [data-skin="classic"] .xhair-preview {
   padding: 0;
+}
+
+/* Credits → classic "About" dialog. ---------------------------------------- */
+
+[data-skin="classic"] .modal__backdrop {
+  background: rgb(0 0 0 / 0.35);
+  backdrop-filter: none;
+}
+
+[data-skin="classic"] .modal__dialog {
+  background: var(--c-bg);
+  box-shadow: none;
+  border: 1px solid;
+  border-color: var(--c-light) var(--c-dark) var(--c-dark) var(--c-light);
+}
+
+[data-skin="classic"] .modal__heading,
+[data-skin="classic"] .credits__author {
+  font-family: Verdana, Tahoma, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+[data-skin="classic"] .credits__author {
+  color: var(--c-label);
+}
+
+[data-skin="classic"] .modal__icon {
+  background: var(--c-bg-dark);
+  color: var(--c-label);
+  border: 1px solid;
+  border-color: var(--c-dark) var(--c-light) var(--c-light) var(--c-dark);
+}
+
+[data-skin="classic"] .modal__close-trigger {
+  width: 18px;
+  height: 16px;
+  color: var(--c-text);
+  background: var(--c-bg);
+  border: 1px solid;
+  border-color: var(--c-light) var(--c-dark) var(--c-dark) var(--c-light);
+}
+
+[data-skin="classic"] .credits__message {
+  font-style: normal;
+  color: var(--c-text);
+  border-left: none;
+  padding: 6px 8px;
+  background: var(--c-bg-dark);
+  border: 1px solid;
+  border-color: var(--c-dark) var(--c-light) var(--c-light) var(--c-dark);
+}
+
+[data-skin="classic"] .credits__link {
+  color: var(--c-label);
 }

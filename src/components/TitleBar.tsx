@@ -1,4 +1,4 @@
-import { Target } from "@gravity-ui/icons";
+import logo from "../assets/deagle-logo.png";
 import { platform } from "../lib/platform";
 
 /**
@@ -9,7 +9,7 @@ import { platform } from "../lib/platform";
 export function TitleBar({ title }: { title: string }) {
   return (
     <div className="titlebar" data-tauri-drag-region>
-      <Target className="titlebar__icon" aria-hidden="true" />
+      <img src={logo} className="titlebar__icon" alt="" aria-hidden="true" draggable={false} />
       <span className="titlebar__title" data-tauri-drag-region>
         {title}
       </span>
