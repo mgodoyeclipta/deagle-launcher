@@ -5,7 +5,7 @@ import { SetupScreen } from "./components/SetupScreen";
 import { TitleBar } from "./components/TitleBar";
 import { platform } from "./lib/platform";
 import { installClickSounds, sfx } from "./lib/sfx";
-import type { GameDirStatus, InstallProgress, OfficialInstall, Settings, SteamStatus } from "./lib/types";
+import type { GameDirStatus, InstallManifest, InstallProgress, OfficialInstall, Settings, SteamStatus } from "./lib/types";
 
 type Phase = "loading" | "setup" | "main";
 
@@ -28,6 +28,7 @@ function Screens() {
   const [error, setError] = useState<string | null>(null);
   const [steam, setSteam] = useState<SteamStatus | null>(null);
   const [official, setOfficial] = useState<OfficialInstall | null>(null);
+  const [previous, setPrevious] = useState<InstallManifest | null>(null);
   const [installing, setInstalling] = useState(false);
   const [progress, setProgress] = useState<InstallProgress | null>(null);
 
@@ -40,6 +41,7 @@ function Screens() {
       ]);
       setSteam(steamStatus);
       setOfficial(officialInstall);
+      platform.previousInstall().then(setPrevious).catch(() => {});
       setSettings(loaded);
       if (loaded.gameDir) {
         const s = await platform.checkGameDir(loaded.gameDir, loaded.dataDir);
@@ -133,6 +135,37 @@ function Screens() {
     }
   }
 
+  /** Re-downloads the latest official engine + client (keeps the current one as "previous"). */
+  async function updateOfficial(): Promise<string | null> {
+    setInstalling(true);
+    setProgress(null);
+    const off = await platform.onInstallProgress(setProgress);
+    try {
+      const result = await platform.installOfficial();
+      setOfficial(result);
+      setPrevious(await platform.previousInstall());
+      update({ gameDir: result.gameDir });
+      return null;
+    } catch (e) {
+      return `No se pudo actualizar: ${String(e)}`;
+    } finally {
+      off();
+      setInstalling(false);
+    }
+  }
+
+  async function rollbackOfficial(): Promise<string | null> {
+    try {
+      const result = await platform.rollbackOfficial();
+      setOfficial(result);
+      setPrevious(await platform.previousInstall());
+      update({ gameDir: result.gameDir });
+      return null;
+    } catch (e) {
+      return String(e);
+    }
+  }
+
   async function pickDataDir() {
     setError(null);
     const dir = await platform.pickDataDir();
@@ -192,6 +225,12 @@ function Screens() {
       settings={settings}
       status={status}
       steam={steam}
+      official={official}
+      previous={previous}
+      installing={installing}
+      progress={progress}
+      onUpdateOfficial={updateOfficial}
+      onRollbackOfficial={rollbackOfficial}
       onChange={update}
       onChangeGameDir={() => setPhase("setup")}
     />

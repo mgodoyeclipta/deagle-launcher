@@ -177,3 +177,18 @@ pub fn factory_reset(app: AppHandle) -> Result<(), String> {
     }
     Ok(())
 }
+
+/// The official version kept from before the last update, if any.
+#[tauri::command]
+pub fn previous_install(app: AppHandle) -> Option<crate::installer::InstallManifest> {
+    crate::installer::previous(&app)
+}
+
+/// Switches to the previous official version (and back, if called again).
+#[tauri::command]
+pub fn rollback_official(app: AppHandle) -> Result<crate::installer::OfficialInstall, String> {
+    if app.state::<GameState>().is_running() {
+        return Err("Cerrá el juego antes de cambiar de versión".into());
+    }
+    crate::installer::rollback_official(&app)
+}

@@ -114,7 +114,8 @@ Tema **Clásico** (estilo Steam 2004) o **Moderno**, modo de pantalla, resoluci�
 
 ## Actualizar
 
-Cuando hay versión nueva, el launcher te avisa (y un punto aparece en ⚙). Bajá el `.dmg` nuevo y reemplazá la app en Aplicaciones: **tus ajustes se conservan**. En **Ajustes → Actualizaciones** también ves si hay versiones nuevas del motor y del cliente.
+- **El launcher:** cuando hay versión nueva te avisa (y aparece un punto en ⚙). Bajá el `.dmg` nuevo y reemplazá la app en Aplicaciones: **tus ajustes se conservan**.
+- **El motor y cs16-client:** si usás la instalación automática, cuando salen versiones nuevas aparece un aviso con **Actualizar**, que las baja, las verifica y las instala conservando tu configuración. Si algo no anda, **Ajustes → Actualizaciones → Volver a la versión anterior** (y se puede deshacer).
 
 ## Desinstalar
 
@@ -167,6 +168,7 @@ Con `npm run dev` y `http://localhost:1420`, la interfaz usa una **simulación**
 | `?steam=none` / `?steam=nocs` | sin Steam / Steam sin Counter-Strike |
 | `?installfail` | que falla la instalación automática |
 | `?discord` | que hay una aplicación de Discord configurada (muestra su interruptor) |
+| `?outdated` | que la instalación automática instala una versión vieja (para ver el aviso de actualización) |
 
 Para empezar de cero en el navegador: `localStorage.clear()` en la consola. Los servidores de la simulación tienen nombres y jugadores inventados: no los muestres junto a nombres o IPs de servidores reales (por ejemplo en capturas).
 
@@ -211,7 +213,7 @@ servers/argentina.json       lista curada de servidores argentinos
 - **Lanzar el juego:** `launch.rs` arma la línea de comandos de `xash3d` (`-game cstrike`, modo de ventana, `-rodir` para los datos de Steam, `+connect`, `-dll @yapb +map … +yb_quota N` para bots). La salida va a un archivo de log, no a un pipe, para que el juego no muera si se cierra el launcher.
 - **Datos del juego:** nunca se copian. Si vienen de Steam, el motor los lee en modo solo lectura con `-rodir` y escribe configs solo en la carpeta de instalación.
 - **`config.cfg`:** el launcher solo escribe una lista cerrada de cvars (nombre, mira, HUD), con valores validados, con el juego cerrado y dejando antes una copia en `config.cfg.deagle.bak`.
-- **Instalador:** baja las releases `continuous` oficiales y **no instala nada cuyo SHA-256 no coincida con el que publica GitHub**. Instala en `~/Library/Application Support/com.mgodoy.deaglelauncher/installs/oficial` y guarda la versión anterior.
+- **Instalador:** baja las releases `continuous` oficiales y **no instala nada cuyo SHA-256 no coincida con el que publica GitHub**. Instala en `~/Library/Application Support/com.mgodoy.deaglelauncher/installs/oficial`, deja la versión anterior en `oficial.anterior` y lleva tus archivos (configs, historial, mapas descargados) a la nueva. "Volver a la versión anterior" intercambia las dos carpetas, así que siempre se puede deshacer. Cada instalación guarda su versión exacta en `deagle-install.json`, que es lo que usa el chequeo de actualizaciones.
 - **Servidores:** los datos en vivo salen de **consultar cada servidor directamente** (protocolo A2S de Valve). No se leen datos de sitios de terceros.
 
 ## Tests
@@ -260,7 +262,6 @@ Para que el proyecto pueda seguir público, hay límites que **no se cruzan**:
 
 - Elegir monitor: falta un parche al motor (`-display N` en `VID_CreateWindow`, `engine/platform/sdl2/vid_sdl2.c`).
 - Discord Rich Presence: el código está, falta el ID de la aplicación de Discord en [`discord.rs`](src-tauri/src/discord.rs).
-- Actualizar el motor y el cliente con un clic, y volver a la versión anterior.
 - Firmar y notarizar la app con Apple Developer.
 
 ---

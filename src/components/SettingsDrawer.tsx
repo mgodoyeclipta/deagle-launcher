@@ -1,9 +1,9 @@
 import { Button, Drawer, Input, Label, ListBox, Select, Spinner, Switch, TextField } from "@heroui/react";
 import type { Key } from "@heroui/react";
-import { ArrowUpRightFromSquare, CircleCheck, CircleExclamation, FolderOpen } from "@gravity-ui/icons";
+import { ArrowDownToLine, ArrowRotateLeft, ArrowUpRightFromSquare, CircleCheck, CircleExclamation, FolderOpen } from "@gravity-ui/icons";
 import { platform } from "../lib/platform";
 import type { ComponentUpdate, UpdateReport } from "../lib/updates";
-import type { Resolution, Settings, Skin, SteamStatus, WindowMode } from "../lib/types";
+import type { InstallManifest, InstallProgress, Resolution, Settings, Skin, SteamStatus, WindowMode } from "../lib/types";
 
 interface Props {
   isOpen: boolean;
@@ -14,6 +14,14 @@ interface Props {
   discordAvailable: boolean;
   steam: SteamStatus | null;
   updates: UpdateReport | null;
+  /** The game runs from the launcher's own official install. */
+  managed: boolean;
+  previous: InstallManifest | null;
+  installing: boolean;
+  progress: InstallProgress | null;
+  versionError: string | null;
+  onUpdateGame: () => void;
+  onRollbackGame: () => void;
   checkingUpdates: boolean;
   onCheckUpdates: () => void;
   onShowCredits: () => void;
@@ -134,6 +142,13 @@ export function SettingsDrawer({
   discordAvailable,
   steam,
   updates,
+  managed,
+  previous,
+  installing,
+  progress,
+  versionError,
+  onUpdateGame,
+  onRollbackGame,
   checkingUpdates,
   onCheckUpdates,
   onShowCredits,
@@ -274,9 +289,46 @@ export function SettingsDrawer({
                 ) : (
                   <p className="text-xs text-muted">{checkingUpdates ? "Buscando…" : "Todavía no se buscaron."}</p>
                 )}
-                <p className="text-[11px] leading-snug text-muted">
-                  Solo avisa y abre la página oficial: el launcher no descarga ni reemplaza archivos del juego.
-                </p>
+                {managed ? (
+                  <div className="flex flex-col gap-2">
+                    {updates && (updates.engine.available || updates.client.available) && (
+                      <Button size="sm" isPending={installing} onPress={onUpdateGame}>
+                        {({ isPending }) => (
+                          <>
+                            {isPending ? <Spinner size="sm" color="current" /> : <ArrowDownToLine />}
+                            {isPending && progress
+                              ? progress.step === "extract"
+                                ? "Instalando…"
+                                : `${progress.label}: ${Math.round((progress.downloaded / Math.max(progress.total, 1)) * 100)}%`
+                              : "Actualizar motor y cliente"}
+                          </>
+                        )}
+                      </Button>
+                    )}
+                    {previous && (
+                      <div className="flex flex-col gap-1">
+                        <Button size="sm" variant="tertiary" className="self-start" isDisabled={installing} onPress={onRollbackGame}>
+                          <ArrowRotateLeft />
+                          Volver a la versión anterior
+                        </Button>
+                        <p className="text-[11px] text-muted">
+                          Motor {previous.engineCommit} · cs16-client del{" "}
+                          {new Date(previous.clientPublishedAt).toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" })}
+                        </p>
+                      </div>
+                    )}
+                    {versionError && <p className="text-xs text-danger">{versionError}</p>}
+                    <p className="text-[11px] leading-snug text-muted">
+                      Usás la instalación oficial: se actualiza desde las releases oficiales (verificando su SHA-256)
+                      y conserva tu configuración. Siempre podés volver a la versión anterior.
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-[11px] leading-snug text-muted">
+                    Usás tu propia carpeta de Xash3D: el launcher solo avisa y abre la página oficial, no toca tus
+                    archivos.
+                  </p>
+                )}
               </div>
 
               <Button variant="tertiary" size="sm" className="self-start" onPress={onShowCredits}>

@@ -18,6 +18,9 @@ import type {
   LaunchAction,
   LaunchOptions,
   MonitorInfo,
+  InstallManifest,
+  InstallProgress,
+  OfficialInstall,
   ServerInfo,
   Settings,
   SteamStatus,
@@ -27,6 +30,13 @@ interface Props {
   settings: Settings;
   status: GameDirStatus;
   steam: SteamStatus | null;
+  official: OfficialInstall | null;
+  previous: InstallManifest | null;
+  installing: boolean;
+  progress: InstallProgress | null;
+  /** Resolve to an error message, or null on success. */
+  onUpdateOfficial: () => Promise<string | null>;
+  onRollbackOfficial: () => Promise<string | null>;
   onChange: (patch: Partial<Settings>) => void;
   onChangeGameDir: () => void;
 }
@@ -59,7 +69,19 @@ function hudScaleFor(settings: Settings, monitor: MonitorInfo | undefined): numb
   return monitor ? Math.max(1, Math.round(monitor.scaleFactor * 2) / 2) : undefined;
 }
 
-export function MainScreen({ settings, status, steam, onChange, onChangeGameDir }: Props) {
+export function MainScreen({
+  settings,
+  status,
+  steam,
+  official,
+  previous,
+  installing,
+  progress,
+  onUpdateOfficial,
+  onRollbackOfficial,
+  onChange,
+  onChangeGameDir,
+}: Props) {
   const gameDir = settings.gameDir!;
   const [section, setSection] = useState<Section>("play");
   const [name, setName] = useState("");
@@ -81,7 +103,7 @@ export function MainScreen({ settings, status, steam, onChange, onChangeGameDir 
   async function runUpdateCheck() {
     setCheckingUpdates(true);
     try {
-      setUpdates(await checkUpdates(gameDir));
+      setUpdates(await checkUpdates(gameDir, official));
     } finally {
       setCheckingUpdates(false);
     }
@@ -90,7 +112,29 @@ export function MainScreen({ settings, status, steam, onChange, onChangeGameDir 
   // One check per launch is plenty (GitHub allows 60 anonymous requests per hour).
   useEffect(() => {
     runUpdateCheck();
-  }, [gameDir]);
+  }, [gameDir, official?.manifest.engineCommit, official?.manifest.clientPublishedAt]);
+
+  const managed = !!official && official.gameDir === gameDir;
+  const engineOrClientUpdate = !!updates && (updates.engine.available || updates.client.available);
+  const [versionError, setVersionError] = useState<string | null>(null);
+
+  async function updateGame() {
+    setVersionError(null);
+    const err = await onUpdateOfficial();
+    if (err) {
+      setVersionError(err);
+      sfx.play("deny");
+    }
+  }
+
+  async function rollbackGame() {
+    setVersionError(null);
+    const err = await onRollbackOfficial();
+    if (err) {
+      setVersionError(err);
+      sfx.play("deny");
+    }
+  }
 
   useEffect(() => {
     platform.discordAvailable().then(setDiscordAvailable).catch(() => {});
@@ -275,6 +319,28 @@ export function MainScreen({ settings, status, steam, onChange, onChangeGameDir 
               </Alert>
             )}
 
+            {managed && engineOrClientUpdate && !running && (
+              <Alert status="accent">
+                <Alert.Indicator />
+                <Alert.Content>
+                  <Alert.Title>Hay una versión nueva del juego</Alert.Title>
+                  <Alert.Description>
+                    {installing && progress
+                      ? progress.step === "extract"
+                        ? "Instalando…"
+                        : `${progress.label}: ${Math.round((progress.downloaded / Math.max(progress.total, 1)) * 100)}%`
+                      : [updates?.engine.available && "motor Xash3D", updates?.client.available && "cs16-client"]
+                          .filter(Boolean)
+                          .join(" y ") + ". Tu configuración se conserva."}
+                  </Alert.Description>
+                  {versionError && <Alert.Description>{versionError}</Alert.Description>}
+                </Alert.Content>
+                <Button size="sm" variant="secondary" isPending={installing} onPress={updateGame}>
+                  Actualizar
+                </Button>
+              </Alert>
+            )}
+
             <TextField value={name} onChange={setName} maxLength={31}>
               <Label>Tu nombre</Label>
               <Input placeholder="Player" />
@@ -452,6 +518,13 @@ export function MainScreen({ settings, status, steam, onChange, onChangeGameDir 
         }}
         discordAvailable={discordAvailable}
         steam={steam}
+        managed={managed}
+        previous={previous}
+        installing={installing}
+        progress={progress}
+        versionError={versionError}
+        onUpdateGame={updateGame}
+        onRollbackGame={rollbackGame}
         updates={updates}
         checkingUpdates={checkingUpdates}
         onCheckUpdates={runUpdateCheck}

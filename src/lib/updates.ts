@@ -4,7 +4,7 @@
  * links to the release page; it never downloads or replaces files.
  */
 import { platform } from "./platform";
-import type { EngineVersion } from "./types";
+import type { OfficialInstall } from "./types";
 
 const API = "https://api.github.com";
 
@@ -69,9 +69,15 @@ async function checkLauncher(): Promise<ComponentUpdate> {
   }
 }
 
-async function checkEngine(installed: EngineVersion | null): Promise<ComponentUpdate> {
+/** What's installed: the commit, and how to describe it. */
+interface EngineRef {
+  commit: string;
+  label: string;
+}
+
+async function checkEngine(installed: EngineRef | null): Promise<ComponentUpdate> {
   const url = `https://github.com/${ENGINE_REPO}/releases/tag/continuous`;
-  const current = installed ? `build ${installed.build} (${installed.commit})` : null;
+  const current = installed?.label ?? null;
   try {
     const latest = await github<{ sha: string; commit: { committer: { date: string } } }>(
       `repos/${ENGINE_REPO}/commits/continuous`,
@@ -96,9 +102,10 @@ async function checkEngine(installed: EngineVersion | null): Promise<ComponentUp
   }
 }
 
-async function checkClient(builtAt: number | null): Promise<ComponentUpdate> {
+async function checkClient(builtAt: number | null, official = false): Promise<ComponentUpdate> {
   const url = `https://github.com/${CLIENT_REPO}/releases/tag/continuous`;
-  const current = builtAt ? `compilado el ${dateFmt.format(new Date(builtAt * 1000))}` : null;
+  const when = builtAt ? dateFmt.format(new Date(builtAt * 1000)) : null;
+  const current = when ? (official ? `oficial del ${when}` : `compilado el ${when}`) : null;
   try {
     const release = await github<{ published_at: string }>(`repos/${CLIENT_REPO}/releases/tags/continuous`);
     const published = new Date(release.published_at);
@@ -113,12 +120,25 @@ async function checkClient(builtAt: number | null): Promise<ComponentUpdate> {
   }
 }
 
-export async function checkUpdates(gameDir: string): Promise<UpdateReport> {
-  const installed = await platform.installedVersions(gameDir);
-  const [launcher, engine, client] = await Promise.all([
-    checkLauncher(),
-    checkEngine(installed.engine),
-    checkClient(installed.clientBuiltAt),
-  ]);
+/**
+ * For the launcher's own official install the versions come from its install
+ * record (exact commit and release date); for a custom folder they are read
+ * from the engine's .cfg header and the client library's date.
+ */
+export async function checkUpdates(gameDir: string, official?: OfficialInstall | null): Promise<UpdateReport> {
+  const managed = official && official.gameDir === gameDir ? official.manifest : null;
+  let engineRef: EngineRef | null;
+  let clientDate: number | null;
+  if (managed) {
+    engineRef = { commit: managed.engineCommit, label: `oficial (${managed.engineCommit})` };
+    clientDate = Date.parse(managed.clientPublishedAt) / 1000;
+  } else {
+    const installed = await platform.installedVersions(gameDir);
+    engineRef = installed.engine
+      ? { commit: installed.engine.commit, label: `build ${installed.engine.build} (${installed.engine.commit})` }
+      : null;
+    clientDate = installed.clientBuiltAt;
+  }
+  const [launcher, engine, client] = await Promise.all([checkLauncher(), checkEngine(engineRef), checkClient(clientDate, !!managed)]);
   return { checkedAt: new Date(), launcher, engine, client };
 }

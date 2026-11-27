@@ -1,6 +1,6 @@
 [package]
 name = "deagle-launcher"
-version = "0.6.0"
+version = "0.7.0"
 description = "Launcher for Counter-Strike 1.6 on Xash3D FWGS"
 authors = ["mgodoy"]
 license = "GPL-3.0-or-later"

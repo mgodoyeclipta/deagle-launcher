@@ -35,6 +35,8 @@ pub fn run() {
             commands::install_official,
             commands::check_data_dir,
             commands::factory_reset,
+            commands::previous_install,
+            commands::rollback_official,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

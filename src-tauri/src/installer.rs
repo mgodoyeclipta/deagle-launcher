@@ -85,8 +85,81 @@ fn installs_dir<R: Runtime>(app: &AppHandle<R>) -> Result<PathBuf, String> {
 /// The managed install, if one has been completed.
 pub fn official<R: Runtime>(app: &AppHandle<R>) -> Option<OfficialInstall> {
     let dir = installs_dir(app).ok()?.join(OFFICIAL);
-    let manifest: InstallManifest = serde_json::from_slice(&fs::read(dir.join(MANIFEST)).ok()?).ok()?;
+    let manifest = read_manifest(&dir)?;
     Some(OfficialInstall { game_dir: dir.display().to_string(), manifest })
+}
+
+const PREVIOUS: &str = "oficial.anterior";
+
+/// User files that should follow the player when switching versions, even
+/// if the other version already has its own (older) copy.
+const USER_FILES: &[&str] = &[
+    "cstrike/config.cfg",
+    "cstrike/config.cfg.deagle.bak",
+    "cstrike/video.cfg",
+    "cstrike/opengl.cfg",
+    "cstrike/history_servers.lst",
+];
+
+fn read_manifest(dir: &Path) -> Option<InstallManifest> {
+    serde_json::from_slice(&fs::read(dir.join(MANIFEST)).ok()?).ok()
+}
+
+/// The version kept from before the last update, if any.
+pub fn previous<R: Runtime>(app: &AppHandle<R>) -> Option<InstallManifest> {
+    read_manifest(&installs_dir(app).ok()?.join(PREVIOUS))
+}
+
+/// Brings the player's own files (configs, history, downloaded maps, bot
+/// data) from `from` into `to`: copies what `to` lacks and overwrites the
+/// known config files with the newer ones.
+fn sync_user_files(from: &Path, to: &Path) -> Result<(), String> {
+    carry_over_user_files(from, to)?;
+    for rel in USER_FILES {
+        let src = from.join(rel);
+        if src.is_file() {
+            let dst = to.join(rel);
+            if let Some(parent) = dst.parent() {
+                fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+            }
+            fs::copy(&src, &dst).map_err(|e| e.to_string())?;
+        }
+    }
+    Ok(())
+}
+
+/// Swaps the current official install with the previous one. Calling it
+/// again undoes it, so nothing is ever lost.
+fn swap_with_previous(root: &Path) -> Result<(), String> {
+    let current = root.join(OFFICIAL);
+    let previous = root.join(PREVIOUS);
+    let parking = root.join(".swap");
+    if read_manifest(&previous).is_none() {
+        return Err("No hay una versión anterior guardada".into());
+    }
+    if read_manifest(&current).is_none() {
+        return Err("No hay una instalación oficial".into());
+    }
+    sync_user_files(&current, &previous)?;
+    let _ = fs::remove_dir_all(&parking);
+    fs::rename(&current, &parking).map_err(|e| e.to_string())?;
+    if let Err(e) = fs::rename(&previous, &current) {
+        let _ = fs::rename(&parking, &current); // put things back as they were
+        return Err(e.to_string());
+    }
+    fs::rename(&parking, &previous).map_err(|e| e.to_string())
+}
+
+pub fn rollback_official<R: Runtime>(app: &AppHandle<R>) -> Result<OfficialInstall, String> {
+    if INSTALLING.swap(true, Ordering::SeqCst) {
+        return Err("Ya hay una instalación en curso".into());
+    }
+    let result = installs_dir(app).and_then(|root| {
+        swap_with_previous(&root)?;
+        official(app).ok_or_else(|| "La instalación quedó incompleta".to_string())
+    });
+    INSTALLING.store(false, Ordering::SeqCst);
+    result
 }
 
 fn http() -> Result<reqwest::Client, String> {
@@ -289,7 +362,7 @@ async fn run_install<R: Runtime>(app: &AppHandle<R>) -> Result<OfficialInstall, 
     let root = installs_dir(app)?;
     let staging = root.join(".staging");
     let official_dir = root.join(OFFICIAL);
-    let previous = root.join(format!("{OFFICIAL}.anterior"));
+    let previous = root.join(PREVIOUS);
     for dir in [&staging, &official_dir, &previous] {
         if !is_plain_child(&root, dir) {
             return Err("Ruta de instalación inesperada".into());
@@ -309,7 +382,7 @@ async fn run_install<R: Runtime>(app: &AppHandle<R>) -> Result<OfficialInstall, 
     .map_err(|e| e.to_string())??;
 
     if official_dir.is_dir() {
-        carry_over_user_files(&official_dir, &staging)?;
+        sync_user_files(&official_dir, &staging)?;
     }
 
     let manifest = InstallManifest {
@@ -369,6 +442,38 @@ mod tests {
         assert_eq!(fs::read_to_string(new.join("cstrike/config.cfg")).unwrap(), "name \"me\"");
         assert!(new.join("cstrike/maps/fy_pool_day.bsp").is_file());
         assert_eq!(fs::read_to_string(new.join("cstrike/extras.pk3")).unwrap(), "new");
+        fs::remove_dir_all(&root).unwrap();
+    }
+
+    #[test]
+    fn rollback_swaps_and_keeps_latest_config() {
+        let root = std::env::temp_dir().join(format!("cs16l-swap-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&root);
+        let manifest = |commit: &str| InstallManifest {
+            engine_commit: commit.into(),
+            engine_published_at: String::new(),
+            client_published_at: String::new(),
+            installed_at: 0,
+        };
+        for (dir, commit) in [(OFFICIAL, "new1234"), (PREVIOUS, "old1234")] {
+            fs::create_dir_all(root.join(dir).join("cstrike")).unwrap();
+            fs::write(root.join(dir).join(MANIFEST), serde_json::to_vec(&manifest(commit)).unwrap()).unwrap();
+            fs::write(root.join(dir).join("cstrike/config.cfg"), format!("name \"{commit}\"")).unwrap();
+        }
+        fs::write(root.join(OFFICIAL).join("cstrike/history_servers.lst"), "1.2.3.4:27015 48\n").unwrap();
+
+        swap_with_previous(&root).unwrap();
+        assert_eq!(read_manifest(&root.join(OFFICIAL)).unwrap().engine_commit, "old1234");
+        assert_eq!(read_manifest(&root.join(PREVIOUS)).unwrap().engine_commit, "new1234");
+        // The player's latest config and history came along to the older version.
+        assert_eq!(fs::read_to_string(root.join(OFFICIAL).join("cstrike/config.cfg")).unwrap(), "name \"new1234\"");
+        assert!(root.join(OFFICIAL).join("cstrike/history_servers.lst").is_file());
+
+        swap_with_previous(&root).unwrap(); // undo
+        assert_eq!(read_manifest(&root.join(OFFICIAL)).unwrap().engine_commit, "new1234");
+
+        fs::remove_dir_all(root.join(PREVIOUS)).unwrap();
+        assert!(swap_with_previous(&root).is_err(), "nothing to roll back to");
         fs::remove_dir_all(&root).unwrap();
     }
 

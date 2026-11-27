@@ -18,6 +18,7 @@ import {
   type GameDirStatus,
   type GameExited,
   type InstalledVersions,
+  type InstallManifest,
   type InstallProgress,
   type OfficialInstall,
   type LaunchOptions,
@@ -41,6 +42,10 @@ export interface Platform {
   officialInstall(): Promise<OfficialInstall | null>;
   /** Downloads and installs the official engine + cs16-client. */
   installOfficial(): Promise<OfficialInstall>;
+  /** The official version kept from before the last update. */
+  previousInstall(): Promise<InstallManifest | null>;
+  /** Swaps the official install with the previous one (calling it again undoes it). */
+  rollbackOfficial(): Promise<OfficialInstall>;
   onInstallProgress(handler: (p: InstallProgress) => void): Promise<() => void>;
   /** Deletes the launcher's settings, official installs and logs, then restarts the UI. */
   factoryReset(): Promise<void>;
@@ -119,6 +124,8 @@ const tauriPlatform: Platform = {
   checkDataDir: (path) => invoke("check_data_dir", { path }),
   officialInstall: () => invoke("official_install"),
   installOfficial: () => invoke("install_official"),
+  previousInstall: () => invoke("previous_install"),
+  rollbackOfficial: () => invoke("rollback_official"),
   onInstallProgress: (handler) => listen<InstallProgress>("install-progress", (e) => handler(e.payload)),
   async factoryReset() {
     // Empty the in-memory store first so nothing saves the old settings back.
@@ -197,6 +204,7 @@ const MOCK_DIR = "/Users/demo/Downloads/xash3d-fwgs-apple-arm64";
 const mockListeners = new Set<(e: GameExited) => void>();
 let mockRunning = false;
 let mockOfficial: OfficialInstall | null = null;
+let mockPrevious: InstallManifest | null = null;
 const mockInstallListeners = new Set<(p: InstallProgress) => void>();
 const mockCrosshair: Record<string, string> = {
   xhair_enable: "1",
@@ -313,9 +321,13 @@ const mockPlatform: Platform = {
     mockInstallListeners.forEach((h) => h({ step: "extract", label: "Instalando", downloaded: 0, total: 0 }));
     await new Promise((r) => setTimeout(r, 600));
     if (new URLSearchParams(location.search).has("installfail")) throw "No se pudo conectar con GitHub";
+    if (mockOfficial) mockPrevious = mockOfficial.manifest;
     mockOfficial = {
       gameDir: "/Users/demo/Library/Application Support/com.mgodoy.deaglelauncher/installs/oficial",
-      manifest: { engineCommit: "bc1b451", enginePublishedAt: "2026-11-24T00:41:47Z", clientPublishedAt: "2026-11-23T21:13:51Z", installedAt: Date.now() / 1000 },
+      // ?outdated installs an old version, to preview the update flow.
+      manifest: new URLSearchParams(location.search).has("outdated") && !mockOfficial
+        ? { engineCommit: "7d87d65", enginePublishedAt: "2026-04-28T00:00:00Z", clientPublishedAt: "2026-04-29T00:00:00Z", installedAt: Date.now() / 1000 }
+        : { engineCommit: "bc1b451", enginePublishedAt: "2026-11-24T00:41:47Z", clientPublishedAt: "2026-11-23T21:13:51Z", installedAt: Date.now() / 1000 },
     };
     mockInstallListeners.forEach((h) => h({ step: "done", label: "Listo", downloaded: 0, total: 0 }));
     return mockOfficial;
@@ -325,6 +337,15 @@ const mockPlatform: Platform = {
     localStorage.clear();
     mockOfficial = null;
     location.reload();
+  },
+  previousInstall: async () => mockPrevious,
+  async rollbackOfficial() {
+    if (mockRunning) throw "Cerrá el juego antes de cambiar de versión";
+    if (!mockOfficial || !mockPrevious) throw "No hay una versión anterior guardada";
+    const current = mockOfficial.manifest;
+    mockOfficial = { ...mockOfficial, manifest: mockPrevious };
+    mockPrevious = current;
+    return mockOfficial;
   },
   async onInstallProgress(handler) {
     mockInstallListeners.add(handler);
